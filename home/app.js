@@ -571,8 +571,8 @@ function createModal(title, content, actions = '') {
 const showLogoutModal = () => {
     const content = `
         <div class="text-center py-4">
-            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-yellow-100 mb-4">
-                <i class="fas fa-sign-out-alt text-yellow-600 text-xl"></i>
+            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full mb-4" style="background-color: var(--primary);">
+                <i class="fas fa-sign-out-alt text-white text-xl"></i>
             </div>
             <p class="text-base text-gray-900">Confirm Logout</p>
             <p class="text-sm text-gray-500 mt-2">Are you sure you want to log out? You’ll need to login again to continue.</p>
@@ -582,7 +582,7 @@ const showLogoutModal = () => {
         <button onclick="closeModal()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
             Cancel
         </button>
-        <button onclick="logoutUser()" class="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg font-medium transition-colors">
+        <button onclick="logoutUser()" class="px-4 py-2 text-white rounded-lg font-medium transition-colors" style="background-color: var(--primary);">
             Logout
         </button>
     `;
@@ -603,7 +603,7 @@ const logoutUser = async () => {
         text: "You have been successfully logged out",
         icon: "success",
         showConfirmButton: false,
-        timer: 1000
+        timer: 1250
     });
     try {
         await api.post("/api/logout");
