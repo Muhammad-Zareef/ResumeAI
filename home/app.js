@@ -550,11 +550,11 @@ function createModal(title, content, actions = '') {
     modal.className = 'fixed inset-0 z-50 overflow-y-auto modal-backdrop';
     modal.innerHTML = `
         <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
-            <div class="fixed inset-0 transition-opacity bg-gray-500 dark:bg-gray-900 bg-opacity-75 dark:bg-opacity-75" onclick="closeModal()"></div>
-            <div class="inline-block w-full max-w-2xl px-6 py-6 overflow-hidden text-left align-middle transition-all transform bg-white dark:bg-gray-800 shadow-xl rounded-2xl fade-in">
+            <div class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" onclick="closeModal()"></div>
+            <div class="inline-block w-full max-w-2xl px-6 py-6 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl fade-in">
                 <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white">${title}</h3>
-                    <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                    <h3 class="text-xl font-semibold text-gray-900">${title}</h3>
+                    <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">
                         <i class="fas fa-times text-xl"></i>
                     </button>
                 </div>
@@ -571,15 +571,15 @@ function createModal(title, content, actions = '') {
 const showLogoutModal = () => {
     const content = `
         <div class="text-center py-4">
-            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-yellow-100 dark:bg-yellow-900 mb-4">
-                <i class="fas fa-sign-out-alt text-yellow-600 dark:text-yellow-400 text-xl"></i>
+            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-yellow-100 mb-4">
+                <i class="fas fa-sign-out-alt text-yellow-600 text-xl"></i>
             </div>
-            <p class="text-base text-gray-900 dark:text-white">Confirm Logout</p>
-            <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Are you sure you want to log out? You’ll need to login again to continue.</p>
+            <p class="text-base text-gray-900">Confirm Logout</p>
+            <p class="text-sm text-gray-500 mt-2">Are you sure you want to log out? You’ll need to login again to continue.</p>
         </div>
     `;
     const actions = `
-        <button onclick="closeModal()" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
+        <button onclick="closeModal()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
             Cancel
         </button>
         <button onclick="logoutUser()" class="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg font-medium transition-colors">
