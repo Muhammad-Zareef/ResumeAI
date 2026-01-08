@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ResumeAI - AI-Powered Resume Analyzer & Job Tracker</title>
+    <link rel="icon" href="favicon.svg" type="image/x-icon">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        :root {
+            --primary: #1E88E5;
+            --accent: #43A047;
+            --secondary: #546E7A;
+            --bg-light: #F4F7FA;
+            --text-dark: #1E1E1E;
+            --card-bg: #FFFFFF;
+            --border-color: #E0E6EC;
+        }
+        * {
+            --tw-ring-color: var(--primary);
+        }
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(30, 136, 229, 0.3);
+        }
+        .btn-primary:focus {
+            outline: 2px solid var(--primary);
+            outline-offset: 2px;
+        }
+        .btn-secondary {
+            border: 2px solid var(--border-color);
+            color: var(--text-dark);
+            transition: all 0.3s ease;
+        }
+        .btn-secondary:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        .btn-secondary:focus {
+            outline: 2px solid var(--primary);
+            outline-offset: 2px;
+        }
+        .input-field {
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+        .input-field:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(30, 136, 229, 0.1);
+        }
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            box-shadow: 0 8px 24px rgba(30, 136, 229, 0.12);
+            transform: translateY(-4px);
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .validation-error {
+            color: #E53935;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+        .validation-success {
+            color: var(--accent);
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+        .password-strength {
+            height: 4px;
+            border-radius: 999px;
+            transition: background-color 0.3s ease;
+        }
+        .strength-weak { background-color: #E53935; }
+        .strength-fair { background-color: #FB8C00; }
+        .strength-good { background-color: #43A047; }
+        .strength-strong { background-color: #00897B; }
+    </style>
+</head>
+<body class="bg-white" style="color: var(--text-dark);">
+
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 bg-white border-b" style="border-color: var(--border-color);">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold" style="background-color: var(--primary);">R</div>
+                    <span class="font-bold text-xl hidden sm:inline" style="color: var(--text-dark);">ResumeAI</span>
+                </div>
+                <!-- Desktop Navigation -->
+                <div class="hidden md:flex items-center gap-8">
+                    <a href="#home" class="text-sm font-medium hover:opacity-70 transition">Home</a>
+                    <a href="#features" class="text-sm font-medium hover:opacity-70 transition">Features</a>
+                    <a href="#how-it-works" class="text-sm font-medium hover:opacity-70 transition">How It Works</a>
+                    <a href="#pricing" class="text-sm font-medium hover:opacity-70 transition">Pricing</a>
+                </div>
+                <!-- Auth Buttons -->
+                <div class="hidden md:flex items-center gap-4">
+                    <button onclick="showAuthModal('login')" class="text-sm font-medium hover:opacity-70 transition">Log In</button>
+                    <button onclick="showAuthModal('signup')" class="btn-primary px-4 py-2 rounded-lg text-sm font-medium">Sign Up</button>
+                </div>
+                <!-- Mobile Menu Toggle -->
+                <button id="mobileMenuBtn" class="md:hidden p-2 rounded-lg hover:bg-gray-100" aria-label="Toggle menu" aria-expanded="false">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+            <!-- Mobile Navigation Menu -->
+            <div id="mobileMenu" class="hidden md:hidden pb-4 space-y-3">
+                <a href="#home" class="block text-sm font-medium hover:opacity-70 transition py-2">Home</a>
+                <a href="#features" class="block text-sm font-medium hover:opacity-70 transition py-2">Features</a>
+                <a href="#how-it-works" class="block text-sm font-medium hover:opacity-70 transition py-2">How It Works</a>
+                <a href="#pricing" class="block text-sm font-medium hover:opacity-70 transition py-2">Pricing</a>
+                <div class="flex gap-2 pt-2">
+                    <button onclick="showAuthModal('login')" class="flex-1 btn-secondary px-4 py-2 rounded-lg text-sm font-medium">Log In</button>
+                    <button onclick="showAuthModal('signup')" class="flex-1 btn-primary px-4 py-2 rounded-lg text-sm font-medium">Sign Up</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="relative overflow-hidden" style="background-color: var(--bg-light);">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-32">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                <!-- Left Content -->
+                <div class="space-y-8">
+                    <div>
+                        <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight" style="color: var(--text-dark);">AI-Powered <span class="gradient-text">Resume Analysis</span></h1>
+                        <p class="text-lg text-gray-600 mt-4 leading-relaxed">Get instant AI feedback on your resume, match with relevant jobs, and track your application progress all in one place.</p>
+                    </div>
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <button onclick="showAuthModal('signup')" class="btn-primary px-8 py-3 rounded-lg font-semibold text-white">Analyze Resume</button>
+                        <button onclick="document.getElementById('features').scrollIntoView({ behavior: 'smooth' })" class="btn-secondary px-8 py-3 rounded-lg font-semibold">View Tracker</button>
+                    </div>
+                    <div class="flex items-center gap-6 pt-4">
+                        <div>
+                            <p class="text-2xl font-bold" style="color: var(--primary);">50K+</p>
+                            <p class="text-sm text-gray-600">Resumes Analyzed</p>
+                        </div>
+                        <div>
+                            <p class="text-2xl font-bold" style="color: var(--accent);">4.9★</p>
+                            <p class="text-sm text-gray-600">User Rating</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Right Illustration -->
+                <div class="hidden md:flex justify-center">
+                    <div class="w-full max-w-md h-96 rounded-2xl" style="background: linear-gradient(135deg, var(--bg-light) 0%, #E3F2FD 100%); display: flex; align-items: center; justify-content: center;">
+                        <svg viewBox="0 0 300 300" class="w-full h-full">
+                            <rect width="300" height="300" fill="none"/>
+                            <rect x="40" y="40" width="220" height="280" rx="8" fill="white" stroke="var(--primary)" stroke-width="2"/>
+                            <line x1="60" y1="80" x2="260" y2="80" stroke="var(--border-color)" stroke-width="1"/>
+                            <line x1="60" y1="100" x2="260" y2="100" stroke="var(--border-color)" stroke-width="1"/>
+                            <circle cx="270" cy="240" r="25" fill="var(--primary)" opacity="0.1"/>
+                            <text x="150" y="150" text-anchor="middle" fill="var(--secondary)" font-size="14" font-weight="500">Resume Analysis</text>
+                            <text x="150" y="175" text-anchor="middle" fill="var(--secondary)" font-size="12">Score: 87/100</text>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-20 md:py-32 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4" style="color: var(--text-dark);">Powerful Features for Your Career</h2>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">Everything you need to optimize your resume and land your dream job</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Feature Card 1 -->
+                <div class="card p-6 rounded-2xl">
+                    <div class="w-12 h-12 rounded-lg mb-4 flex items-center justify-center text-2xl" style="background-color: var(--bg-light); color: var(--primary);">
+                        ✨
+                    </div>
+                    <h3 class="text-lg font-bold mb-2" style="color: var(--text-dark);">AI Resume Feedback</h3>
+                    <p class="text-gray-600 text-sm">
+                        Get instant AI-powered insights on formatting, content quality, and optimization recommendations.
+                    </p>
+                </div>
+                <!-- Feature Card 2 -->
+                <div class="card p-6 rounded-2xl">
+                    <div class="w-12 h-12 rounded-lg mb-4 flex items-center justify-center text-2xl" style="background-color: var(--bg-light); color: var(--accent);">
+                        🎯
+                    </div>
+                    <h3 class="text-lg font-bold mb-2" style="color: var(--text-dark);">Job Matching</h3>
+                    <p class="text-gray-600 text-sm">
+                        Discover curated job opportunities that match your skills, experience, and career goals.
+                    </p>
+                </div>
+                <!-- Feature Card 3 -->
+                <div class="card p-6 rounded-2xl">
+                    <div class="w-12 h-12 rounded-lg mb-4 flex items-center justify-center text-2xl" style="background-color: var(--bg-light); color: var(--secondary);">
+                        📊
+                    </div>
+                    <h3 class="text-lg font-bold mb-2" style="color: var(--text-dark);">Application Tracker</h3>
+                    <p class="text-gray-600 text-sm">
+                        Track all your job applications, interviews, and follow-ups in one centralized dashboard.
+                    </p>
+                </div>
+                <!-- Feature Card 4 -->
+                <div class="card p-6 rounded-2xl">
+                    <div class="w-12 h-12 rounded-lg mb-4 flex items-center justify-center text-2xl" style="background-color: var(--bg-light);">💾</div>
+                    <h3 class="text-lg font-bold mb-2" style="color: var(--text-dark);">Saved Jobs</h3>
+                    <p class="text-gray-600 text-sm">Save and organize your favorite job postings for easy comparison and future reference.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="py-20 md:py-32" style="background-color: var(--bg-light);">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4" style="color: var(--text-dark);">How It Works</h2>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">Get started in three simple steps</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Step 1 -->
+                <div class="text-center">
+                    <div class="w-16 h-16 rounded-full mx-auto mb-6 flex items-center justify-center text-white font-bold text-xl" style="background-color: var(--primary);">1</div>
+                    <h3 class="text-xl font-bold mb-3" style="color: var(--text-dark);">Upload Your Resume</h3>
+                    <p class="text-gray-600">Upload your resume in PDF or DOC format. Our system instantly processes and analyzes your document.</p>
+                </div>
+                <!-- Arrow -->
+                <div class="hidden md:flex items-center justify-center">
+                    <div class="text-3xl" style="color: var(--border-color);">→</div>
+                </div>
+                <!-- Step 2 -->
+                <div class="text-center">
+                    <div class="w-16 h-16 rounded-full mx-auto mb-6 flex items-center justify-center text-white font-bold text-xl" style="background-color: var(--primary);">2</div>
+                    <h3 class="text-xl font-bold mb-3" style="color: var(--text-dark);">AI Analysis & Score</h3>
+                    <p class="text-gray-600">Receive a detailed score with actionable feedback on structure, keywords, and content optimization.</p>
+                </div>
+                <!-- Arrow -->
+                <div class="hidden md:flex items-center justify-center">
+                    <div class="text-3xl" style="color: var(--border-color);">→</div>
+                </div>
+                <!-- Step 3 -->
+                <div class="text-center">
+                    <div class="w-16 h-16 rounded-full mx-auto mb-6 flex items-center justify-center text-white font-bold text-xl" style="background-color: var(--accent);">3</div>
+                    <h3 class="text-xl font-bold mb-3" style="color: var(--text-dark);">Track & Apply</h3>
+                    <p class="text-gray-600">Discover matched jobs, track applications, and manage your career progress all in one place.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Dashboard Preview Section -->
+    <section class="py-20 md:py-32 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4" style="color: var(--text-dark);">
+                    Your Resume Analysis Results
+                </h2>
+                <p class="text-lg text-gray-600">
+                    See what ResumeAI can reveal about your resume
+                </p>
+            </div>
+            <div class="card p-8 rounded-2xl max-w-4xl mx-auto">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+                    <!-- Score Card -->
+                    <div class="text-center p-6 rounded-xl" style="background-color: var(--bg-light);">
+                        <div class="text-5xl font-bold mb-2" style="color: var(--primary);">87</div>
+                        <p class="text-gray-600 font-medium">Resume Score</p>
+                        <p class="text-xs text-gray-500 mt-2">Excellent</p>
+                    </div>
+                    <!-- Keywords -->
+                    <div class="p-6 rounded-xl" style="background-color: var(--bg-light);">
+                        <p class="font-semibold mb-3" style="color: var(--text-dark);">Top Keywords</p>
+                        <div class="space-y-2">
+                            <div class="inline-block px-3 py-1 rounded-full text-xs font-medium text-white mr-2" style="background-color: var(--primary);">Leadership</div>
+                            <div class="inline-block px-3 py-1 rounded-full text-xs font-medium text-white mr-2" style="background-color: var(--primary);">Analytics</div>
+                            <div class="inline-block px-3 py-1 rounded-full text-xs font-medium text-white" style="background-color: var(--accent);">Design</div>
+                        </div>
+                    </div>
+                    <!-- Recommendations -->
+                    <div class="p-6 rounded-xl" style="background-color: var(--bg-light);">
+                        <p class="font-semibold mb-3" style="color: var(--text-dark);">Improvements</p>
+                        <ul class="space-y-2 text-sm text-gray-600">
+                            <li>✓ Add quantifiable results</li>
+                            <li>✓ Expand technical skills</li>
+                            <li>→ Include certifications</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="border-t pt-6" style="border-color: var(--border-color);">
+                    <button onclick="showAuthModal('signup')" class="w-full btn-primary py-3 rounded-lg font-semibold text-white">
+                        Start Your Analysis Today
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-12" style="background-color: var(--text-dark);">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+                <div>
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold" style="background-color: var(--primary);">R</div>
+                        <span class="font-bold text-white">ResumeAI</span>
+                    </div>
+                    <p class="text-gray-400 text-sm">Empowering careers with AI-powered resume insights.</p>
+                </div>
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Product</h4>
+                    <ul class="space-y-2 text-gray-400 text-sm">
+                        <li><a href="#features" class="hover:text-white transition">Features</a></li>
+                        <li><a href="#pricing" class="hover:text-white transition">Pricing</a></li>
+                        <li><a href="#" class="hover:text-white transition">API</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Company</h4>
+                    <ul class="space-y-2 text-gray-400 text-sm">
+                        <li><a href="#" class="hover:text-white transition">About</a></li>
+                        <li><a href="#" class="hover:text-white transition">Blog</a></li>
+                        <li><a href="#" class="hover:text-white transition">Careers</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Connect</h4>
+                    <div class="flex gap-4">
+                        <a href="#" aria-label="Twitter" class="text-gray-400 hover:text-white transition">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M6.29 18.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0020 3.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 01.8 7.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 010 16.407a11.616 11.616 0 006.29 1.84"></path>
+                            </svg>
+                        </a>
+                        <a href="#" aria-label="LinkedIn" class="text-gray-400 hover:text-white transition">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M16.337 6.059a3.03 3.03 0 00-2.173-.962c-1.198 0-2.272.587-2.955 1.486-.683-.899-1.757-1.486-2.955-1.486-1.198 0-2.272.587-2.955 1.486V5.5h-1.5v11h1.5v-5.5c0-1.378 1.122-2.5 2.5-2.5s2.5 1.122 2.5 2.5v5.5h1.5v-5.5c0-1.378 1.122-2.5 2.5-2.5s2.5 1.122 2.5 2.5v5.5h1.5v-5.5c0-2.209-1.791-4-4-4z"></path>
+                            </svg>
+                        </a>
+                        <a href="#" aria-label="GitHub" class="text-gray-400 hover:text-white transition">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 0C4.477 0 0 4.484 0 10.017c0 4.425 2.865 8.18 6.839 9.49.5.092.682-.217.682-.482 0-.237-.008-.868-.013-1.703-2.782.603-3.369-1.343-3.369-1.343-.454-1.156-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.544 2.914 1.19.092-.926.35-1.556.636-1.913-2.22-.253-4.555-1.112-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.268.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0110 4.817a9.57 9.57 0 012.5.337c1.909-1.294 2.747-1.025 2.747-1.025.546 1.379.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C17.137 18.191 20 14.441 20 10.017 20 4.484 15.522 0 10 0z" clip-rule="evenodd"></path>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t pt-8" style="border-color: #333;">
+                <div class="flex flex-col md:flex-row justify-between items-center text-gray-400 text-sm">
+                    <p>&copy; 2025 ResumeAI. All rights reserved.</p>
+                    <div class="flex gap-6 mt-4 md:mt-0">
+                        <a href="#" class="hover:text-white transition">Privacy Policy</a>
+                        <a href="#" class="hover:text-white transition">Terms of Service</a>
+                        <a href="#" class="hover:text-white transition">Contact</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Auth Modal -->
+    <div id="authModal" class="hidden fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+        <div class="bg-white rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+            <!-- Login Form -->
+            <div id="loginForm" class="p-8">
+                <h2 id="authTitle" class="text-2xl font-bold mb-2" style="color: var(--text-dark);">Welcome Back</h2>
+                <p class="text-gray-600 mb-6">Log in to your ResumeAI account</p>
+                <form onsubmit="handleLogin(event)" class="space-y-4">
+                    <!-- Email Field -->
+                    <div>
+                        <label for="loginEmail" class="block text-sm font-medium mb-2" style="color: var(--text-dark);">
+                            Email Address
+                        </label>
+                        <input type="email" id="loginEmail" placeholder="you@example.com" class="input-field w-full px-4 py-2 rounded-lg" required aria-required="true">
+                        <div id="loginEmailError" class="validation-error hidden"></div>
+                    </div>
+                    <!-- Password Field -->
+                    <div>
+                        <label for="loginPassword" class="block text-sm font-medium mb-2" style="color: var(--text-dark);">Password</label>
+                        <div class="relative">
+                            <input type="password" id="loginPassword" placeholder="••••••••" class="input-field w-full px-4 py-2 rounded-lg" required aria-required="true">
+                            <button type="button" onclick="togglePasswordVisibility('loginPassword')" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700" aria-label="Toggle password visibility">👁️</button>
+                        </div>
+                    </div>
+                    <!-- Remember Me & Forgot Password -->
+                    <div class="flex items-center justify-between text-sm">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" id="rememberMe" class="w-4 h-4 rounded" style="accent-color: var(--primary);">
+                            <span style="color: var(--text-dark);">Remember me</span>
+                        </label>
+                        <a href="#" class="hover:opacity-70 transition" style="color: var(--primary);">Forgot password?</a>
+                    </div>
+                    <!-- Login Button -->
+                    <button type="submit" id="loginBtn" class="btn-primary w-full py-2 rounded-lg font-semibold mt-6">
+                        Log In
+                    </button>
+                </form>
+                
+                <!-- Signup Link -->
+                <p class="text-center text-sm text-gray-600 mt-6">
+                    Don't have an account? <button onclick="switchForm('signup')" class="font-semibold hover:opacity-70 transition" style="color: var(--primary);">Sign up</button>
+                </p>
+            </div>
+            
+            <!-- Signup Form -->
+            <div id="signupForm" class="p-8 hidden">
+                <h2 class="text-2xl font-bold mb-2" style="color: var(--text-dark);">Create Account</h2>
+                <p class="text-gray-600 mb-6">Join ResumeAI to optimize your career</p>
+                <form onsubmit="handleSignup(event)" class="space-y-4">
+                    <!-- Name Field -->
+                    <div>
+                        <label for="signupName" class="block text-sm font-medium mb-2" style="color: var(--text-dark);">Full Name</label>
+                        <input type="text" id="signupName" placeholder="John Doe" class="input-field w-full px-4 py-2 rounded-lg" required aria-required="true">
+                        <div id="signupNameError" class="validation-error hidden"></div>
+                    </div>
+                    <!-- Email Field -->
+                    <div>
+                        <label for="signupEmail" class="block text-sm font-medium mb-2" style="color: var(--text-dark);">Email Address</label>
+                        <input type="email" id="signupEmail" placeholder="you@example.com" class="input-field w-full px-4 py-2 rounded-lg" required aria-required="true" onchange="validateEmail(this.value)">
+                        <div id="signupEmailError" class="validation-error hidden"></div>
+                    </div>
+                    <!-- Password Field -->
+                    <div>
+                        <label for="signupPassword" class="block text-sm font-medium mb-2" style="color: var(--text-dark);">
+                            Password
+                        </label>
+                        <div class="relative">
+                            <input type="password" id="signupPassword" placeholder="••••••••" class="input-field w-full px-4 py-2 rounded-lg" required aria-required="true" oninput="checkPasswordStrength(this.value)">
+                            <button type="button" onclick="togglePasswordVisibility('signupPassword')" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700" aria-label="Toggle password visibility">👁️</button>
+                        </div>
+                        <div id="passwordStrengthBar" class="password-strength mt-2 h-1 hidden"></div>
+                        <p id="passwordStrengthText" class="text-xs text-gray-500 mt-1"></p>
+                    </div>
+                    <!-- Confirm Password Field -->
+                    <div>
+                        <label for="signupConfirmPassword" class="block text-sm font-medium mb-2" style="color: var(--text-dark);">Confirm Password</label>
+                        <div class="relative">
+                            <input type="password" id="signupConfirmPassword" placeholder="••••••••" class="input-field w-full px-4 py-2 rounded-lg" required aria-required="true">
+                            <button type="button" onclick="togglePasswordVisibility('signupConfirmPassword')" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700" aria-label="Toggle password visibility">
+                                👁️
+                            </button>
+                        </div>
+                        <div id="confirmPasswordError" class="validation-error hidden"></div>
+                    </div>
+                    <!-- Terms Checkbox -->
+                    <label class="flex items-start gap-3 cursor-pointer">
+                        <input type="checkbox" id="termsCheckbox" class="w-4 h-4 rounded mt-1" style="accent-color: var(--primary);" required aria-required="true">
+                        <span class="text-sm text-gray-600">
+                            I agree to the 
+                            <a href="#" class="hover:opacity-70 transition" style="color: var(--primary);">Terms of Service</a> and <a href="#" class="hover:opacity-70 transition" style="color: var(--primary);">Privacy Policy</a>
+                        </span>
+                    </label>
+                    <!-- Signup Button -->
+                    <button type="submit" id="signupBtn" class="btn-primary w-full py-2 rounded-lg font-semibold mt-6">Create Account</button>
+                </form>
+                <!-- Login Link -->
+                <p class="text-center text-sm text-gray-600 mt-6">
+                    Already have an account? 
+                    <button onclick="switchForm('login')" class="font-semibold hover:opacity-70 transition" style="color: var(--primary);">Log in</button>
+                </p>
+            </div>
+
+            <!-- Close Button -->
+            <button onclick="closeAuthModal()" class="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-lg" aria-label="Close dialog">
+                ✕
+            </button>
+        </div>
+    </div>
+
+    <!-- Pricing Section (Hidden, available for future expansion) -->
+    <section id="pricing" class="py-20 md:py-32 bg-white hidden">
+        <!-- Pricing content would go here -->
+    </section>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="app.js"></script>
+</body>
+</html>
