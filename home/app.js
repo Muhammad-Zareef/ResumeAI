@@ -308,14 +308,14 @@ function filterJobs(status) {
         btn.style.color = btn.dataset.filter === status ? "white" : "var(--secondary)";
         btn.style.borderColor = btn.dataset.filter === status ? "var(--primary)" : "var(--border)";
     });
-    renderJobs(false);
+    renderJobs(false, status);
 }
 
-async function renderJobs(renderOptions = true) {
+async function renderJobs(renderOptions = true, status = 'all') {
     try {
-        const res = await api.get('/api/jobs');
+        const res = await api.get(status === "all" ? "/api/jobs" : `/api/jobs/filter?status=${status}`);
         if (renderOptions) await renderJobOptions(res.data);
-        const filtered = state.currentFilter === "all" ? res.data : res.data.filter((j) => j.status === state.currentFilter);
+        const filtered = res.data;
         const html = filtered.length === 0 ? '<div class="bg-white rounded-lg border p-12 text-center" style="border-color: var(--border);"><i class="fas fa-briefcase text-4xl mb-4 block" style="color: var(--border);"></i><p class="font-medium" style="color: var(--secondary);">No jobs yet</p><p class="text-sm" style="color: var(--secondary);">Start tracking your applications</p></div>' : filtered.map((job) => getJobCard(job)).join("");
         document.getElementById("jobsList").innerHTML = html;
         document.getElementById("jobCount").textContent = res.data.length;
