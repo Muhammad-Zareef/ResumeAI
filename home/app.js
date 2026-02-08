@@ -174,7 +174,7 @@ function displayResults(data) {
     document.getElementById("analysisTime").textContent = `Analyzed on ${new Date(data.createdAt).toLocaleDateString()}`;
     document.getElementById("resultsSection").classList.remove("hidden-section");
     document.getElementById("resultsSection").classList.add("visible-section");
-    setTimeout(() => document.getElementById("resultsSection").scrollIntoView({ behavior: "smooth" }), 100);
+    setTimeout(() => document.getElementById("analyzeBtn").scrollIntoView({ behavior: "smooth" }), 100);
 }
 
 // Copy text
@@ -486,8 +486,9 @@ async function renderHistory() {
 async function viewHistory(id) {
     try {
         const res = await api.get(`/api/resume/${id}`);
-        displayResults(res.data.resume);
         switchTab("analyzer");
+        toggleHistory();
+        displayResults(res.data.resume);
     } catch (err) {
         console.error('Get Resume Error:', err);
     }
