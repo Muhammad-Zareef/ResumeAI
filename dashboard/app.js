@@ -763,7 +763,7 @@ function renderUserTable(users) {
             <td class="px-6 py-4 whitespace-nowrap">
                 <div class="flex items-center">
                     <div class="w-8 h-8 bg-gradient-to-br from-purple-500 to-purple-700 rounded-full flex items-center justify-center flex-shrink-0">
-                        <span class="text-white text-xs font-medium">${user.name.split(' ').map((n) => n[0]).join('')}</span>
+                        <span class="text-white text-xs font-medium">${user.name.split(/[\s.]+/).filter(Boolean).map((n) => n[0].toUpperCase()).join('')}</span>
                     </div>
                     <div class="ml-3">
                         <p class="text-sm font-medium text-gray-900 dark:text-white">${user.name}</p>
