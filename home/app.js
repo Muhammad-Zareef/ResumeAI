@@ -174,7 +174,7 @@ function displayResults(data) {
     document.getElementById("analysisTime").textContent = `Analyzed on ${new Date(data.createdAt).toLocaleDateString()}`;
     document.getElementById("resultsSection").classList.remove("hidden-section");
     document.getElementById("resultsSection").classList.add("visible-section");
-    setTimeout(() => document.getElementById("analyzeBtn").scrollIntoView({ behavior: "smooth" }), 100);
+    setTimeout(() => document.getElementById("scrollView").scrollIntoView({ behavior: "smooth" }), 100);
 }
 
 // Copy text
