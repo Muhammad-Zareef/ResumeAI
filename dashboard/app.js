@@ -756,6 +756,7 @@ async function initJobManagement() {
 function renderUserTable(users) {
     const tbody = document.getElementById('userTableBody');
     tbody.innerHTML = '';
+    console.log(users);
     users.forEach((user) => {
         const row = document.createElement('tr');
         row.className = 'hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors';
