@@ -28,20 +28,24 @@
         @keyframes spin { to { transform: rotate(360deg); } }
         .hidden-section { display: none; }
         .visible-section { display: block; }
+        
         /* Enhanced responsive styles for sidebar */
-        @media (max-width: 768px) {
+        @media (max-width: 1023px) {
             #historySidebar {
                 position: fixed;
-                top: 0;
-                right: -100%;
-                height: 100vh;
+                bottom: 0;
+                left: -100%;
+                height: 80vh;
                 width: 100%;
-                max-width: 320px;
+                max-width: 100%;
                 z-index: 60;
-                transition: right 0.3s ease-in-out;
+                transition: left 0.3s ease-in-out;
+                border-radius: 1rem 1rem 0 0;
+                display: flex !important;
+                flex-direction: column;
             }
             #historySidebar.active {
-                right: 0;
+                left: 0;
             }
             .history-overlay {
                 position: fixed;
@@ -54,6 +58,15 @@
                 display: block;
             }
         }
+        
+        @media (max-width: 640px) {
+            #historySidebar {
+                height: 85vh;
+            }
+            .fade-in {
+                animation: fadeIn 0.4s ease-in;
+            }
+        }
     </style>
 </head>
 <body style="background-color: var(--light-bg);">
@@ -62,55 +75,77 @@
     <div id="historyOverlay" class="history-overlay" onclick="toggleHistory()"></div>
 
     <!-- Navbar -->
-    <nav class="sticky top-0 z-50 bg-white border-b" style="border-color: var(--border);">
-        <div class="max-w-7xl mx-auto px-6 md:px-8 py-4">
-            <div class="flex items-center justify-between mb-4">
-                <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background-color: var(--primary);"><i class="fas fa-file-pdf text-white text-lg"></i></div>
-                    <h1 class="text-xl font-bold" style="color: var(--dark-text);">ResumeAI</h1>
+    <nav class="sticky top-0 z-50 bg-white border-b shadow-sm" style="border-color: var(--border);">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Main navbar row -->
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo -->
+                <div class="flex items-center gap-2 flex-shrink-0">
+                    <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background-color: var(--primary);">
+                        <i class="fas fa-file-pdf text-white text-lg"></i>
+                    </div>
+                    <h1 class="text-lg sm:text-xl font-bold" style="color: var(--dark-text);">ResumeAI</h1>
                 </div>
-                <!-- Added history toggle button for mobile and improved logout button -->
-                <div class="flex items-center gap-2">
-                    <button onclick="toggleHistory()" class="md:hidden flex items-center gap-2 px-3 py-2 rounded-lg text-white font-medium transition-all" style="background-color: var(--accent);">
-                        <i class="fas fa-history"></i>
+                
+                <!-- Tab Navigation - Center on larger screens, hidden on mobile -->
+                <div class="hidden md:flex items-center gap-1">
+                    <button onclick="switchTab('analyzer')" id="analyzerTab" class="px-3 sm:px-4 py-2 font-medium transition-colors border-b-2 text-sm sm:text-base" style="border-color: var(--primary); color: var(--primary);">
+                        <i class="fas fa-file-alt mr-1 sm:mr-2"></i>
+                        <span class="hidden sm:inline">Resume Analyzer</span>
+                        <span class="sm:hidden">Analyzer</span>
                     </button>
-                    <button onclick="showLogoutModal()" class="flex items-center gap-2 px-4 py-2 rounded-lg text-white font-medium transition-all" style="background-color: var(--primary);">
-                        <i class="fas fa-sign-out-alt me-1"></i>
+                    <button onclick="switchTab('tracker')" id="trackerTab" class="px-3 sm:px-4 py-2 font-medium transition-colors border-b-2 border-transparent text-sm sm:text-base" style="color: var(--secondary);">
+                        <i class="fas fa-briefcase mr-1 sm:mr-2"></i>
+                        <span class="hidden sm:inline">Job Tracker</span>
+                        <span class="sm:hidden">Tracker</span>
+                        <span id="jobCount" class="ml-1 text-xs px-2 py-0.5 rounded-full text-white font-semibold" style="background-color: var(--accent); display: none;">0</span>
+                    </button>
+                </div>
+                
+                <!-- Right side buttons -->
+                <div class="flex items-center gap-2">
+                    <button onclick="toggleHistory()" class="flex items-center gap-1 px-4 sm:px-3 py-3 rounded-lg text-white font-medium transition-all text-sm" title="History" style="background-color: var(--accent);">
+                        <i class="fas fa-history"></i>
+                        <span class="hidden sm:inline">History</span>
+                    </button>
+                    <button onclick="showLogoutModal()" class="flex items-center gap-1 px-4 sm:px-4 py-3 rounded-lg text-white font-medium transition-all text-sm" style="background-color: var(--primary);">
+                        <i class="fas fa-sign-out-alt"></i>
                         <span class="hidden sm:inline">Logout</span>
                     </button>
                 </div>
             </div>
-            <!-- Tab Navigation -->
-            <div class="flex gap-2 border-b" style="border-color: var(--border);">
-                <button onclick="switchTab('analyzer')" id="analyzerTab" class="px-4 py-3 font-medium transition-colors border-b-2" style="border-color: var(--primary); color: var(--primary);">
-                    <i class="fas fa-file-alt mr-2"></i>Resume Analyzer
+            
+            <!-- Mobile Tab Navigation -->
+            <div class="md:hidden flex gap-2 border-t overflow-x-auto" style="border-color: var(--border);">
+                <button onclick="switchTab('analyzer')" id="analyzerTabMobile" class="flex-1 px-3 py-2 font-medium transition-colors border-b-2 text-xs whitespace-nowrap" style="border-color: var(--primary); color: var(--primary);">
+                    <i class="fas fa-file-alt mr-1"></i>Analyzer
                 </button>
-                <button onclick="switchTab('tracker')" id="trackerTab" class="px-4 py-3 font-medium transition-colors border-b-2 border-transparent" style="color: var(--secondary);">
-                    <i class="fas fa-briefcase mr-2"></i>Job Tracker
-                    <span id="jobCount" class="ml-2 text-xs px-2 py-1 rounded-full text-white font-semibold" style="background-color: var(--accent); display: none;">0</span>
+                <button onclick="switchTab('tracker')" id="trackerTabMobile" class="flex-1 px-3 py-2 font-medium transition-colors border-b-2 border-transparent text-xs whitespace-nowrap" style="color: var(--secondary);">
+                    <i class="fas fa-briefcase mr-1"></i>Tracker
+                    <span id="jobCountMobile" class="ml-1 text-xs px-1.5 py-0.5 rounded-full text-white font-semibold" style="background-color: var(--accent); display: none;">0</span>
                 </button>
             </div>
         </div>
     </nav>
 
-    <div class="flex">
+    <div class="flex flex-col lg:flex-row min-h-full">
         <!-- Main Content -->
-        <div class="flex-1 p-6 md:p-8">
-            <div class="max-w-4xl mx-auto">
+        <div class="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
+            <div class="max-w-4xl mx-auto w-full">
                 <!-- Resume Analyzer Tab -->
                 <div id="analyzerSection" class="visible-section">
-                    <div class="mb-8">
-                        <h1 class="text-4xl font-bold mb-2" style="color: var(--dark-text);">Resume Analyzer</h1>
-                        <p style="color: var(--secondary);">Upload your resume and get instant AI-powered feedback</p>
+                    <div class="mb-6 sm:mb-8">
+                        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2" style="color: var(--dark-text);">Resume Analyzer</h1>
+                        <p class="text-sm sm:text-base" style="color: var(--secondary);">Upload your resume and get instant AI-powered feedback</p>
                     </div>
                     <!-- Resume Form -->
-                    <form onsubmit="analyzeResume(event)" class="bg-white rounded-lg border p-6 md:p-8 mb-8" style="border-color: var(--border);">
+                    <form onsubmit="analyzeResume(event)" class="bg-white rounded-lg border p-4 sm:p-6 lg:p-8 mb-6 sm:mb-8" style="border-color: var(--border);">
                         <!-- File Upload FIRST -->
                         <div class="mb-6">
                             <label class="block text-sm font-semibold mb-2" style="color: var(--dark-text);">Upload Resume (PDF)</label>
-                            <label for="fileInput" class="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed rounded-lg cursor-pointer transition hover:bg-gray-50" style="border-color: var(--border);">
-                                <i class="fas fa-file-pdf text-3xl mb-2 text-red-500"></i>
-                                <p class="text-sm text-gray-600">Click to upload or drag & drop</p>
+                            <label for="fileInput" class="flex flex-col items-center justify-center w-full h-32 sm:h-40 border-2 border-dashed rounded-lg cursor-pointer transition hover:bg-gray-50" style="border-color: var(--border);">
+                                <i class="fas fa-file-pdf text-2xl sm:text-3xl mb-2 text-red-500"></i>
+                                <p class="text-xs sm:text-sm text-gray-600">Click to upload or drag & drop</p>
                                 <p class="text-xs text-gray-400 mt-1">PDF only</p>
                                 <input type="file" id="fileInput" accept="application/pdf" class="hidden" onchange="showFileName(this)" />
                             </label>
@@ -120,7 +155,7 @@
                         <!-- Select Job Dropdown -->
                         <div class="mb-6">
                             <label class="block text-sm font-semibold mb-2" style="color: var(--dark-text);">Select Job:</label>
-                            <select id="jobSelect" class="w-full p-2.5 border rounded-lg bg-white" style="border-color: var(--border); color: var(--dark-text);"></select>
+                            <select id="jobSelect" class="w-full p-2.5 border rounded-lg bg-white text-sm" style="border-color: var(--border); color: var(--dark-text);"></select>
                         </div>
                         <!-- Error Message -->
                         <div id="errorMsg" class="mb-4 p-3 rounded-lg flex items-center gap-2 hidden" style="background-color: #ffebee; border: 1px solid #ffcdd2;">
@@ -136,87 +171,87 @@
                     <!-- Results Section -->
                     <div id="resultsSection" class="hidden-section">
                         <!-- Score Cards -->
-                        <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 mb-8 fade-in">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6 sm:mb-8 fade-in">
                             <!-- Overall Score -->
-                            <div class="bg-white rounded-lg border p-6" style="border-color: var(--border);">
+                            <div class="bg-white rounded-lg border p-4 sm:p-6" style="border-color: var(--border);">
                                 <div class="flex items-center justify-between mb-4">
-                                    <h3 class="font-semibold" style="color: var(--dark-text);">Overall Score</h3>
-                                    <i class="fas fa-star text-2xl" style="color: var(--accent);"></i>
+                                    <h3 class="font-semibold text-sm sm:text-base" style="color: var(--dark-text);">Overall Score</h3>
+                                    <i class="fas fa-star text-xl sm:text-2xl" style="color: var(--accent);"></i>
                                 </div>
-                                <div class="flex items-center gap-4">
-                                    <div class="relative w-20 h-20">
+                                <div class="flex items-center gap-3 sm:gap-4">
+                                    <div class="relative w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0">
                                         <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
                                             <circle cx="50" cy="50" r="45" stroke="var(--border)" stroke-width="8" fill="none"/>
                                             <circle id="overallCircle" cx="50" cy="50" r="45" stroke="var(--primary)" stroke-width="8" fill="none" stroke-dasharray="283 283" stroke-linecap="round"/>
                                         </svg>
                                         <div class="absolute inset-0 flex items-center justify-center">
-                                            <span id="scoreValue" class="text-2xl font-bold" style="color: var(--dark-text);"></span>
+                                            <span id="scoreValue" class="text-lg sm:text-2xl font-bold" style="color: var(--dark-text);"></span>
                                         </div>
                                     </div>
-                                    <div>
-                                        <p class="text-sm mb-2" style="color: var(--secondary);">Performance</p>
-                                        <span id="scoreStatus" class="inline-block text-xs font-semibold px-3 py-1 rounded-full text-white" style="background-color: var(--accent);"><i class="fas fa-check-circle mr-1"></i>Excellent</span>
+                                    <div class="min-w-0">
+                                        <p class="text-xs sm:text-sm mb-2" style="color: var(--secondary);">Performance</p>
+                                        <span id="scoreStatus" class="inline-block text-xs font-semibold px-2 sm:px-3 py-1 rounded-full text-white whitespace-nowrap" style="background-color: var(--accent);"><i class="fas fa-check-circle mr-1"></i>Excellent</span>
                                     </div>
                                 </div>
                             </div>
                             <!-- ATS Score -->
-                            <div class="bg-white rounded-lg border p-6" style="border-color: var(--border);">
+                            <div class="bg-white rounded-lg border p-4 sm:p-6" style="border-color: var(--border);">
                                 <div class="flex items-center justify-between mb-4">
-                                    <h3 class="font-semibold" style="color: var(--dark-text);">ATS Compatibility</h3>
-                                    <i class="fas fa-robot text-2xl" style="color: var(--accent);"></i>
+                                    <h3 class="font-semibold text-sm sm:text-base" style="color: var(--dark-text);">ATS Compatibility</h3>
+                                    <i class="fas fa-robot text-xl sm:text-2xl" style="color: var(--accent);"></i>
                                 </div>
-                                <div class="flex items-center gap-4">
-                                    <div class="relative w-20 h-20">
+                                <div class="flex items-center gap-3 sm:gap-4">
+                                    <div class="relative w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0">
                                         <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
                                             <circle cx="50" cy="50" r="45" stroke="var(--border)" stroke-width="8" fill="none"/>
                                             <circle id="atsCircle" cx="50" cy="50" r="45" stroke="var(--accent)" stroke-width="8" fill="none" stroke-dasharray="283 283" stroke-linecap="round"/>
                                         </svg>
                                         <div class="absolute inset-0 flex items-center justify-center">
-                                            <span id="atsScoreValue" class="text-2xl font-bold" style="color: var(--dark-text);"></span>
+                                            <span id="atsScoreValue" class="text-lg sm:text-2xl font-bold" style="color: var(--dark-text);"></span>
                                         </div>
                                     </div>
-                                    <div>
-                                        <p class="text-sm mb-2" style="color: var(--secondary);">ATS Pass Rate</p>
-                                        <span id="atsStatus" class="inline-block text-xs font-semibold px-3 py-1 rounded-full text-white" style="background-color: var(--accent);"><i class="fas fa-thumbs-up mr-1"></i>Optimized</span>
+                                    <div class="min-w-0">
+                                        <p class="text-xs sm:text-sm mb-2" style="color: var(--secondary);">ATS Pass Rate</p>
+                                        <span id="atsStatus" class="inline-block text-xs font-semibold px-2 sm:px-3 py-1 rounded-full text-white whitespace-nowrap" style="background-color: var(--accent);"><i class="fas fa-thumbs-up mr-1"></i>Optimized</span>
                                     </div>
                                 </div>
                             </div>
                             <!-- Job Match Percentage -->
-                            <div class="bg-white rounded-lg border p-6" style="border-color: var(--border);">
+                            <div class="bg-white rounded-lg border p-4 sm:p-6" style="border-color: var(--border);">
                                 <div class="flex items-center justify-between mb-4">
-                                    <h3 class="font-semibold" style="color: var(--dark-text);">Job Match</h3>
-                                    <i class="fas fa-briefcase text-2xl" style="color: var(--primary);"></i>
+                                    <h3 class="font-semibold text-sm sm:text-base" style="color: var(--dark-text);">Job Match</h3>
+                                    <i class="fas fa-briefcase text-xl sm:text-2xl" style="color: var(--primary);"></i>
                                 </div>
-                                <div class="flex items-center gap-4">
-                                    <div class="relative w-20 h-20">
+                                <div class="flex items-center gap-3 sm:gap-4">
+                                    <div class="relative w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0">
                                         <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
                                             <circle cx="50" cy="50" r="45" stroke="var(--border)" stroke-width="8" fill="none"/>
                                             <circle id="jobMatchCircle" cx="50" cy="50" r="45" stroke="var(--primary)" stroke-width="8" fill="none" stroke-dasharray="283 283" stroke-linecap="round"/>
                                         </svg>
                                         <div class="absolute inset-0 flex items-center justify-center">
-                                            <span id="jobMatchValue" class="text-2xl font-bold" style="color: var(--dark-text);"></span>
+                                            <span id="jobMatchValue" class="text-lg sm:text-2xl font-bold" style="color: var(--dark-text);"></span>
                                         </div>
                                     </div>
-                                    <div>
-                                        <p class="text-sm mb-2" style="color: var(--secondary);">Resume–Job Fit</p>
-                                        <span id="jobMatchStatus" class="inline-block text-xs font-semibold px-3 py-1 rounded-full text-white" style="background-color: var(--primary);"> <i class="fas fa-check mr-1"></i>Good Match</span>
+                                    <div class="min-w-0">
+                                        <p class="text-xs sm:text-sm mb-2" style="color: var(--secondary);">Resume–Job Fit</p>
+                                        <span id="jobMatchStatus" class="inline-block text-xs font-semibold px-2 sm:px-3 py-1 rounded-full text-white whitespace-nowrap" style="background-color: var(--primary);"><i class="fas fa-check mr-1"></i>Good Match</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <!-- Missing Skills -->
-                        <div class="bg-white rounded-lg border p-6 mb-8 fade-in" style="border-color: var(--border);">
-                            <h3 class="text-lg font-semibold mb-4 flex items-center gap-2" style="color: var(--dark-text);"><i class="fas fa-exclamation-triangle" style="color: var(--primary);"></i>Missing Skills</h3>
-                            <ul id="missingSkillsContainer" class="space-y-3"></ul>
+                        <div class="bg-white rounded-lg border p-4 sm:p-6 mb-6 sm:mb-8 fade-in" style="border-color: var(--border);">
+                            <h3 class="text-base sm:text-lg font-semibold mb-4 flex items-center gap-2" style="color: var(--dark-text);"><i class="fas fa-exclamation-triangle" style="color: var(--primary);"></i>Missing Skills</h3>
+                            <ul id="missingSkillsContainer" class="space-y-2 sm:space-y-3"></ul>
                         </div>
                         <!-- Suggestions -->
-                        <div class="bg-white rounded-lg border p-6 mb-8 fade-in" style="border-color: var(--border);">
-                            <h3 class="text-lg font-semibold mb-4 flex items-center gap-2" style="color: var(--dark-text);"><i class="fas fa-lightbulb" style="color: var(--primary);"></i>Suggestions for Improvement</h3>
-                            <ul id="suggestionsContainer" class="space-y-3"></ul>
+                        <div class="bg-white rounded-lg border p-4 sm:p-6 mb-6 sm:mb-8 fade-in" style="border-color: var(--border);">
+                            <h3 class="text-base sm:text-lg font-semibold mb-4 flex items-center gap-2" style="color: var(--dark-text);"><i class="fas fa-lightbulb" style="color: var(--primary);"></i>Suggestions for Improvement</h3>
+                            <ul id="suggestionsContainer" class="space-y-2 sm:space-y-3"></ul>
                         </div>
                         <!-- Grammar Fixes -->
-                        <div class="bg-white rounded-lg border p-6 fade-in" style="border-color: var(--border);">
-                            <h3 class="text-lg font-semibold mb-4 flex items-center justify-between" style="color: var(--dark-text);">
+                        <div class="bg-white rounded-lg border p-4 sm:p-6 fade-in" style="border-color: var(--border);">
+                            <h3 class="text-base sm:text-lg font-semibold mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3" style="color: var(--dark-text);">
                                 <span class="flex items-center gap-2"><i class="fas fa-spell-check" style="color: var(--accent);"></i>Professional Summary Fix</span>
                                 <!-- Action Buttons -->
                                 <div class="flex items-center gap-3">
@@ -230,8 +265,8 @@
                                     </button>
                                 </div>
                             </h3>
-                            <p class="text-sm mb-3" style="color: var(--secondary);">Here's an improved version of your professional summary:</p>
-                            <div id="grammarContainer" class="rounded-lg p-4 italic" style="background-color: var(--light-bg); border: 1px solid var(--border); color: var(--dark-text);"></div>
+                            <p class="text-xs sm:text-sm mb-3" style="color: var(--secondary);">Here's an improved version of your professional summary:</p>
+                            <div id="grammarContainer" class="rounded-lg p-3 sm:p-4 italic text-sm sm:text-base overflow-x-auto" style="background-color: var(--light-bg); border: 1px solid var(--border); color: var(--dark-text);"></div>
                         </div>
                         <div class="text-center text-sm mt-4" style="color: var(--secondary);">
                             <i class="fas fa-info-circle mr-2"></i><span id="analysisTime"></span>
@@ -240,29 +275,29 @@
                 </div>
                 <!-- Job Tracker Tab -->
                 <div id="trackerSection" class="hidden-section">
-                    <div class="mb-8">
-                        <h1 class="text-4xl font-bold mb-2" style="color: var(--dark-text);">Job Tracker</h1>
-                        <p style="color: var(--secondary);">Track your job applications and interview progress</p>
+                    <div class="mb-6 sm:mb-8">
+                        <h1 class="text-2xl sm:text-4xl font-bold mb-2" style="color: var(--dark-text);">Job Tracker</h1>
+                        <p class="text-sm sm:text-base" style="color: var(--secondary);">Track your job applications and interview progress</p>
                     </div>
                     <!-- Add Job Button -->
-                    <button onclick="toggleJobForm()" class="text-white font-semibold py-3 px-6 rounded-lg transition-all flex items-center gap-2 mb-8" style="background-color: var(--primary);"><i class="fas fa-plus"></i>Add Job Application</button>
+                    <button onclick="toggleJobForm()" class="text-white font-semibold py-2 sm:py-3 px-4 sm:px-6 rounded-lg transition-all flex items-center gap-2 mb-6 sm:mb-8 text-sm sm:text-base" style="background-color: var(--primary);"><i class="fas fa-plus"></i>Add Job Application</button>
                     <!-- Job Form -->
-                    <form id="jobForm" onsubmit="addJob(event)" class="bg-white rounded-lg border p-6 mb-8 hidden" style="border-color: var(--border);">
-                        <h3 class="text-lg font-semibold mb-4" style="color: var(--dark-text);">Add New Job Application</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <form id="jobForm" onsubmit="addJob(event)" class="bg-white rounded-lg border p-4 sm:p-6 mb-6 sm:mb-8 hidden" style="border-color: var(--border);">
+                        <h3 class="text-base sm:text-lg font-semibold mb-4" style="color: var(--dark-text);">Add New Job Application</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4">
                             <div>
-                                <label class="block text-sm font-medium mb-2" style="color: var(--dark-text);">Company Name *</label>
-                                <input type="text" id="jobCompany" placeholder="e.g., Google" class="w-full px-4 py-2 border rounded-lg focus:outline-none" style="border-color: var(--border);" required>
+                                <label class="block text-xs sm:text-sm font-medium mb-2" style="color: var(--dark-text);">Company Name *</label>
+                                <input type="text" id="jobCompany" placeholder="e.g., Google" class="w-full px-3 sm:px-4 py-2 border rounded-lg focus:outline-none text-sm" style="border-color: var(--border);" required>
                             </div>
                             <div>
-                                <label class="block text-sm font-medium mb-2" style="color: var(--dark-text);">Position *</label>
-                                <input type="text" id="jobPosition" placeholder="e.g., Senior React Developer" class="w-full px-4 py-2 border rounded-lg focus:outline-none" style="border-color: var(--border);" required>
+                                <label class="block text-xs sm:text-sm font-medium mb-2" style="color: var(--dark-text);">Position *</label>
+                                <input type="text" id="jobPosition" placeholder="e.g., Senior React Developer" class="w-full px-3 sm:px-4 py-2 border rounded-lg focus:outline-none text-sm" style="border-color: var(--border);" required>
                             </div>
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4">
                             <div>
-                                <label class="block text-sm font-medium mb-2" style="color: var(--dark-text);">Status *</label>
-                                <select id="jobStatus" class="w-full px-4 py-2 border rounded-lg focus:outline-none" style="border-color: var(--border);">
+                                <label class="block text-xs sm:text-sm font-medium mb-2" style="color: var(--dark-text);">Status *</label>
+                                <select id="jobStatus" class="w-full px-3 sm:px-4 py-2 border rounded-lg focus:outline-none text-sm" style="border-color: var(--border);">
                                     <option value="applied">Applied</option>
                                     <option value="interviewing">Interviewing</option>
                                     <option value="offered">Offered</option>
@@ -270,84 +305,84 @@
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-sm font-medium mb-2" style="color: var(--dark-text);">Job Link *</label>
-                                <input type="url" id="jobLink" placeholder="https://..." class="w-full px-4 py-2 border rounded-lg focus:outline-none" style="border-color: var(--border);" required>
+                                <label class="block text-xs sm:text-sm font-medium mb-2" style="color: var(--dark-text);">Job Link *</label>
+                                <input type="url" id="jobLink" placeholder="https://..." class="w-full px-3 sm:px-4 py-2 border rounded-lg focus:outline-none text-sm" style="border-color: var(--border);" required>
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label class="block text-sm font-medium mb-2" style="color: var(--dark-text);">Description *</label>
-                            <textarea id="jobDescription" placeholder="Add job description..." class="w-full px-4 py-2 border rounded-lg focus:outline-none resize-none h-24" style="border-color: var(--border);" required></textarea>
+                            <label class="block text-xs sm:text-sm font-medium mb-2" style="color: var(--dark-text);">Description *</label>
+                            <textarea id="jobDescription" placeholder="Add job description..." class="w-full px-3 sm:px-4 py-2 border rounded-lg focus:outline-none resize-none h-20 sm:h-24 text-sm" style="border-color: var(--border);" required></textarea>
                         </div>
                         <div class="mb-5">
-                            <label class="block text-sm font-medium mb-2" style="color: var(--dark-text);">Notes *</label>
-                            <textarea id="jobNotes" placeholder="Add any notes about this application..." class="w-full px-4 py-2 border rounded-lg focus:outline-none resize-none h-11" style="border-color: var(--border);" required></textarea>
+                            <label class="block text-xs sm:text-sm font-medium mb-2" style="color: var(--dark-text);">Notes *</label>
+                            <textarea id="jobNotes" placeholder="Add any notes about this application..." class="w-full px-3 sm:px-4 py-2 border rounded-lg focus:outline-none resize-none h-20 sm:h-11 text-sm" style="border-color: var(--border);" required></textarea>
                         </div>
                         <div class="flex gap-2">
-                            <button type="submit" id="addJobBtn" class="flex-1 text-white font-semibold py-2 px-4 rounded-lg transition-all" style="background-color: var(--primary);">Add Job</button>
-                            <button type="button" onclick="toggleJobForm()" class="flex-1 font-semibold py-2 px-4 rounded-lg transition-all border" style="border-color: var(--border); color: var(--secondary);">Cancel</button>
+                            <button type="submit" id="addJobBtn" class="flex-1 text-white font-semibold py-2 px-4 rounded-lg transition-all text-sm" style="background-color: var(--primary);">Add Job</button>
+                            <button type="button" onclick="toggleJobForm()" class="flex-1 font-semibold py-2 px-4 rounded-lg transition-all border text-sm" style="border-color: var(--border); color: var(--secondary);">Cancel</button>
                         </div>
                     </form>
                     <!-- Filter Buttons -->
-                    <div class="flex gap-2 flex-wrap mb-8">
-                        <button onclick="filterJobs('all')" class="filterBtn active px-4 py-2 rounded-lg font-medium transition-colors text-white" data-filter="all" style="background-color: var(--primary);">All</button>
-                        <button onclick="filterJobs('applied')" class="filterBtn px-4 py-2 rounded-lg font-medium transition-colors border" data-filter="applied" style="border-color: var(--border); color: var(--secondary);">Applied</button>
-                        <button onclick="filterJobs('interviewing')" class="filterBtn px-4 py-2 rounded-lg font-medium transition-colors border" data-filter="interviewing" style="border-color: var(--border); color: var(--secondary);">Interviewing</button>
-                        <button onclick="filterJobs('offered')" class="filterBtn px-4 py-2 rounded-lg font-medium transition-colors border" data-filter="offered" style="border-color: var(--border); color: var(--secondary);">Offered</button>
-                        <button onclick="filterJobs('rejected')" class="filterBtn px-4 py-2 rounded-lg font-medium transition-colors border" data-filter="rejected" style="border-color: var(--border); color: var(--secondary);">Rejected</button>
+                    <div class="flex gap-2 flex-wrap mb-6 sm:mb-8 overflow-x-auto">
+                        <button onclick="filterJobs('all')" class="filterBtn active px-3 sm:px-4 py-2 rounded-lg font-medium transition-colors text-white text-xs sm:text-sm whitespace-nowrap" data-filter="all" style="background-color: var(--primary);">All</button>
+                        <button onclick="filterJobs('applied')" class="filterBtn px-3 sm:px-4 py-2 rounded-lg font-medium transition-colors border text-xs sm:text-sm whitespace-nowrap" data-filter="applied" style="border-color: var(--border); color: var(--secondary);">Applied</button>
+                        <button onclick="filterJobs('interviewing')" class="filterBtn px-3 sm:px-4 py-2 rounded-lg font-medium transition-colors border text-xs sm:text-sm whitespace-nowrap" data-filter="interviewing" style="border-color: var(--border); color: var(--secondary);">Interviewing</button>
+                        <button onclick="filterJobs('offered')" class="filterBtn px-3 sm:px-4 py-2 rounded-lg font-medium transition-colors border text-xs sm:text-sm whitespace-nowrap" data-filter="offered" style="border-color: var(--border); color: var(--secondary);">Offered</button>
+                        <button onclick="filterJobs('rejected')" class="filterBtn px-3 sm:px-4 py-2 rounded-lg font-medium transition-colors border text-xs sm:text-sm whitespace-nowrap" data-filter="rejected" style="border-color: var(--border); color: var(--secondary);">Rejected</button>
                     </div>
                     <!-- Jobs List -->
-                    <div id="jobsList" class="space-y-4"></div>
+                    <div id="jobsList" class="space-y-3 sm:space-y-4"></div>
                 </div>
             </div>
         </div>
 
         <!-- History Sidebar -->
-        <div id="historySidebar" class="w-full md:w-80 bg-white border-l hidden md:block" style="border-color: var(--border);">
-            <div class="text-white p-6" style="background-color: var(--primary);">
-                <div class="flex items-center justify-between">
+        <div id="historySidebar" class="w-full sm:w-80 bg-white border-t sm:border-t-0 sm:border-l hidden lg:flex flex-col" style="border-color: var(--border);">
+            <div class="text-white p-4 sm:p-6 flex-shrink-0" style="background-color: var(--primary);">
+                <div class="flex items-center justify-between gap-3">
                     <div>
-                        <h2 class="text-lg font-semibold">Analysis History</h2>
-                        <p class="text-blue-100 text-sm"><span id="historyTotal">0</span> analyses</p>
+                        <h2 class="text-base sm:text-lg font-semibold">Analysis History</h2>
+                        <p class="text-blue-100 text-xs sm:text-sm"><span id="historyTotal">0</span> analyses</p>
                     </div>
-                    <button onclick="toggleHistory()" class="md:hidden text-white hover:bg-blue-700 p-2 rounded"><i class="fas fa-times text-xl"></i></button>
+                    <button onclick="toggleHistory()" class="lg:hidden text-white hover:bg-blue-700 p-2 rounded flex-shrink-0"><i class="fas fa-times text-lg sm:text-xl"></i></button>
                 </div>
             </div>
-            <div id="historyContent" class="overflow-y-auto p-4 space-y-3" style="max-height: calc(100vh - 200px);">
-                <div class="text-center py-12" style="color: var(--secondary);">
-                    <i class="fas fa-inbox text-4xl mb-3 block opacity-30"></i>
-                    <p class="text-sm">No analyses yet</p>
+            <div id="historyContent" class="overflow-y-auto p-3 sm:p-4 space-y-2 sm:space-y-3 flex-1" style="max-height: calc(100vh - 250px);">
+                <div class="text-center py-8 sm:py-12" style="color: var(--secondary);">
+                    <i class="fas fa-inbox text-3xl sm:text-4xl mb-3 block opacity-30"></i>
+                    <p class="text-xs sm:text-sm">No analyses yet</p>
                     <p class="text-xs mt-1">Analyze your first resume to see it here</p>
                 </div>
             </div>
-            <div id="historyClearBtn" class="border-t p-4 hidden" style="border-color: var(--border);">
-                <button onclick="clearAllHistory()" class="w-full py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg font-medium transition-all"><i class="fas fa-trash-alt mr-2"></i>Clear All History</button>
+            <div id="historyClearBtn" class="border-t p-3 sm:p-4 hidden flex-shrink-0" style="border-color: var(--border);">
+                <button onclick="clearAllHistory()" class="w-full py-2 text-xs sm:text-sm text-red-600 hover:bg-red-50 rounded-lg font-medium transition-all"><i class="fas fa-trash-alt mr-2"></i>Clear All History</button>
             </div>
         </div>
     </div>
 
     <!-- Edit Job Modal -->
-    <div id="editJobModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50" onclick="if(event.target.id === 'editJobModal') closeEditModal()">
-        <div class="bg-white rounded-lg p-6 md:p-8 max-w-md w-full mx-4" onclick="event.stopPropagation()">
-            <div class="flex items-center justify-between mb-6">
-                <h2 class="text-xl font-semibold" style="color: var(--dark-text);">Edit Job Application</h2>
-                <button onclick="closeEditModal()" class="text-gray-400 hover:text-gray-600">
-                    <i class="fas fa-times text-xl"></i>
+    <div id="editJobModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-end sm:items-center justify-center z-50 p-4" onclick="if(event.target.id === 'editJobModal') closeEditModal()">
+        <div class="bg-white rounded-t-lg sm:rounded-lg p-4 sm:p-6 lg:p-8 max-w-md w-full max-h-[90vh] sm:max-h-none overflow-y-auto" onclick="event.stopPropagation()">
+            <div class="flex items-center justify-between mb-4 sm:mb-6">
+                <h2 class="text-lg sm:text-xl font-semibold" style="color: var(--dark-text);">Edit Job Application</h2>
+                <button onclick="closeEditModal()" class="text-gray-400 hover:text-gray-600 flex-shrink-0">
+                    <i class="fas fa-times text-lg sm:text-xl"></i>
                 </button>
             </div>
             <form id="editJobForm" onsubmit="saveJobEdit(event)">
                 <input type="hidden" id="jobId">
                 <div class="mb-4">
-                    <label class="block text-sm font-medium mb-2" style="color: var(--dark-text);">Company Name *</label>
-                    <input type="text" id="editJobCompany" placeholder="e.g., Google" class="w-full px-4 py-2 border rounded-lg focus:outline-none" style="border-color: var(--border);" required>
+                    <label class="block text-xs sm:text-sm font-medium mb-2" style="color: var(--dark-text);">Company Name *</label>
+                    <input type="text" id="editJobCompany" placeholder="e.g., Google" class="w-full px-3 sm:px-4 py-2 border rounded-lg focus:outline-none text-sm" style="border-color: var(--border);" required>
                 </div>
                 <div class="mb-4">
-                    <label class="block text-sm font-medium mb-2" style="color: var(--dark-text);">Position *</label>
-                    <input type="text" id="editJobPosition" placeholder="e.g., Senior React Developer" class="w-full px-4 py-2 border rounded-lg focus:outline-none" style="border-color: var(--border);" required>
+                    <label class="block text-xs sm:text-sm font-medium mb-2" style="color: var(--dark-text);">Position *</label>
+                    <input type="text" id="editJobPosition" placeholder="e.g., Senior React Developer" class="w-full px-3 sm:px-4 py-2 border rounded-lg focus:outline-none text-sm" style="border-color: var(--border);" required>
                 </div>
-                <div class="grid grid-cols-2 gap-4 mb-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4">
                     <div>
-                        <label class="block text-sm font-medium mb-2" style="color: var(--dark-text);">Status *</label>
-                        <select id="editJobStatus" class="w-full px-4 py-2 border rounded-lg focus:outline-none" style="border-color: var(--border);">
+                        <label class="block text-xs sm:text-sm font-medium mb-2" style="color: var(--dark-text);">Status *</label>
+                        <select id="editJobStatus" class="w-full px-3 sm:px-4 py-2 border rounded-lg focus:outline-none text-sm" style="border-color: var(--border);">
                             <option value="applied">Applied</option>
                             <option value="interviewing">Interviewing</option>
                             <option value="offered">Offered</option>
@@ -355,21 +390,21 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium mb-2" style="color: var(--dark-text);">Job Link *</label>
-                        <input type="url" id="editJobLink" placeholder="https://..." class="w-full px-4 py-2 border rounded-lg focus:outline-none" style="border-color: var(--border);" required>
+                        <label class="block text-xs sm:text-sm font-medium mb-2" style="color: var(--dark-text);">Job Link *</label>
+                        <input type="url" id="editJobLink" placeholder="https://..." class="w-full px-3 sm:px-4 py-2 border rounded-lg focus:outline-none text-sm" style="border-color: var(--border);" required>
                     </div>
                 </div>
                 <div class="mb-4">
-                    <label class="block text-sm font-medium mb-2" style="color: var(--dark-text);">Description *</label>
-                    <textarea id="editJobDescription" placeholder="Add any notes about this application..." class="w-full px-4 py-2 border rounded-lg focus:outline-none resize-none h-24" style="border-color: var(--border);" required></textarea>
+                    <label class="block text-xs sm:text-sm font-medium mb-2" style="color: var(--dark-text);">Description *</label>
+                    <textarea id="editJobDescription" placeholder="Add any notes about this application..." class="w-full px-3 sm:px-4 py-2 border rounded-lg focus:outline-none resize-none h-20 sm:h-24 text-sm" style="border-color: var(--border);" required></textarea>
                 </div>
-                <div class="mb-6">
-                    <label class="block text-sm font-medium mb-2" style="color: var(--dark-text);">Notes *</label>
-                    <textarea id="editJobNotes" placeholder="Add any notes about this application..." class="w-full px-4 py-2 border rounded-lg focus:outline-none resize-none h-11" style="border-color: var(--border);"required></textarea>
+                <div class="mb-4 sm:mb-6">
+                    <label class="block text-xs sm:text-sm font-medium mb-2" style="color: var(--dark-text);">Notes *</label>
+                    <textarea id="editJobNotes" placeholder="Add any notes about this application..." class="w-full px-3 sm:px-4 py-2 border rounded-lg focus:outline-none resize-none h-20 sm:h-11 text-sm" style="border-color: var(--border);" required></textarea>
                 </div>
                 <div class="flex gap-2">
-                    <button type="submit" id="saveChangesBtn" class="flex-1 text-white font-semibold py-2 px-4 rounded-lg transition-all" style="background-color: var(--primary);">Save Changes</button>
-                    <button type="button" onclick="closeEditModal()" class="flex-1 font-semibold py-2 px-4 rounded-lg transition-all border" style="border-color: var(--border); color: var(--secondary);">Cancel</button>
+                    <button type="submit" id="saveChangesBtn" class="flex-1 text-white font-semibold py-2 px-4 rounded-lg transition-all text-sm" style="background-color: var(--primary);">Save Changes</button>
+                    <button type="button" onclick="closeEditModal()" class="flex-1 font-semibold py-2 px-4 rounded-lg transition-all border text-sm" style="border-color: var(--border); color: var(--secondary);">Cancel</button>
                 </div>
             </form>
         </div>

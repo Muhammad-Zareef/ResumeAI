@@ -13,8 +13,21 @@ let state = {
 // Initialize
 document.addEventListener("DOMContentLoaded", async function () {
     await checkAuth();
+    const mq = window.matchMedia("(max-width: 768px)");
+    if (mq.matches) {
+        switchTab(state.currentTab);
+    } else {
+        switchTab(state.currentTab);
+    }
     await renderHistory();
     await renderJobs();
+    mq.addEventListener("change", (e) => {
+        if (e.matches) {
+            switchTab(state.currentTab);
+        } else {
+            switchTab(state.currentTab);
+        }
+    });
 });
 
 async function checkAuth() {
@@ -43,10 +56,17 @@ function switchTab(tab) {
     state.currentTab = tab;
     document.getElementById("analyzerSection").className = tab === "analyzer" ? "visible-section" : "hidden-section";
     document.getElementById("trackerSection").className = tab === "tracker" ? "visible-section" : "hidden-section";
-    document.getElementById("analyzerTab").style.borderColor = tab === "analyzer" ? "var(--primary)" : "transparent";
-    document.getElementById("analyzerTab").style.color = tab === "analyzer" ? "var(--primary)" : "var(--secondary)";
-    document.getElementById("trackerTab").style.borderColor = tab === "tracker" ? "var(--primary)" : "transparent";
-    document.getElementById("trackerTab").style.color = tab === "tracker" ? "var(--primary)" : "var(--secondary)";
+    if (window.innerWidth >= 768) {
+        document.getElementById("analyzerTab").style.borderColor = tab === "analyzer" ? "var(--primary)" : "transparent";
+        document.getElementById("analyzerTab").style.color = tab === "analyzer" ? "var(--primary)" : "var(--secondary)";
+        document.getElementById("trackerTab").style.borderColor = tab === "tracker" ? "var(--primary)" : "transparent";
+        document.getElementById("trackerTab").style.color = tab === "tracker" ? "var(--primary)" : "var(--secondary)";
+    } else {
+        document.getElementById("analyzerTabMobile").style.borderColor = tab === "analyzer" ? "var(--primary)" : "transparent";
+        document.getElementById("analyzerTabMobile").style.color = tab === "analyzer" ? "var(--primary)" : "var(--secondary)";
+        document.getElementById("trackerTabMobile").style.borderColor = tab === "tracker" ? "var(--primary)" : "transparent";
+        document.getElementById("trackerTabMobile").style.color = tab === "tracker" ? "var(--primary)" : "var(--secondary)";
+    }
 }
 
 // Resume Analysis
@@ -425,6 +445,7 @@ async function saveJobEdit(e) {
 
 // History Management
 function toggleHistory() {
+    if (window.innerWidth >= 1023) return;
     const sidebar = document.getElementById('historySidebar');
     const overlay = document.getElementById('historyOverlay');
     sidebar.classList.toggle('active');
