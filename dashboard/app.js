@@ -756,7 +756,6 @@ async function initJobManagement() {
 function renderUserTable(users) {
     const tbody = document.getElementById('userTableBody');
     tbody.innerHTML = '';
-    console.log(users);
     users.forEach((user) => {
         const row = document.createElement('tr');
         row.className = 'hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors';
@@ -764,7 +763,7 @@ function renderUserTable(users) {
             <td class="px-6 py-4 whitespace-nowrap">
                 <div class="flex items-center">
                     <div class="w-8 h-8 bg-gradient-to-br from-purple-500 to-purple-700 rounded-full flex items-center justify-center flex-shrink-0">
-                        <span class="text-white text-xs font-medium">${user.name? user.name : user.fullName}</span>
+                        <span class="text-white text-xs font-medium">${user.name.split(/[\s.]+/).filter(Boolean).map((n) => n[0].toUpperCase()).join('')}</span>
                     </div>
                     <div class="ml-3">
                         <p class="text-sm font-medium text-gray-900 dark:text-white">${user.name}</p>
