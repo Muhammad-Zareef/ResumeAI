@@ -976,10 +976,11 @@ const adminLogout = async () => {
 // ============================================
 
 document.addEventListener('DOMContentLoaded', async () => {
-    await checkUserRole();
-
+    
     // Initialize theme
     await initTheme();
+
+    await checkUserRole();
 
     await loadDashboardStats();
 
