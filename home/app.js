@@ -462,7 +462,7 @@ async function renderHistory() {
         const html = res.data.length === 0
                 ? '<div class="text-center py-12" style="color: var(--secondary);"><i class="fas fa-inbox text-4xl mb-3 block opacity-30"></i><p class="text-sm">No analyses yet</p><p class="text-xs mt-1">Analyze your first resume to see it here</p></div>'
                 : res.data.map((item) => `
-                <div class="p-4 rounded-lg border cursor-pointer transition-colors" style="background-color: var(--light-bg); border-color: var(--border);">
+                <div class="p-4 rounded-lg border cursor-pointer transition-colors" style="background-color: var(--light-bg); border-color: var(--border);" onclick="this.style.cursor='default'">
                     <div onclick="setGlobalLoadingCursor(true); viewHistory('${item._id}')" class="mb-2">
                         <div class="flex items-center justify-between mb-2">
                             <span class="font-semibold text-sm" style="color: var(--dark-text);">Score: ${item.aiScore}/100</span>
