@@ -463,7 +463,7 @@ async function renderHistory() {
                 ? '<div class="text-center py-12" style="color: var(--secondary);"><i class="fas fa-inbox text-4xl mb-3 block opacity-30"></i><p class="text-sm">No analyses yet</p><p class="text-xs mt-1">Analyze your first resume to see it here</p></div>'
                 : res.data.map((item) => `
                 <div class="p-4 rounded-lg border cursor-pointer transition-colors" style="background-color: var(--light-bg); border-color: var(--border);">
-                    <div onclick="viewHistory('${item._id}')" class="mb-2">
+                    <div onclick="setGlobalLoadingCursor(true); viewHistory('${item._id}')" class="mb-2">
                         <div class="flex items-center justify-between mb-2">
                             <span class="font-semibold text-sm" style="color: var(--dark-text);">Score: ${item.aiScore}/100</span>
                             <span class="text-xs font-semibold px-2 py-1 rounded text-white" style="background-color: ${item.aiScore >= 80 ? "var(--accent)" : "#fbc02d"};">${item.aiScore >= 80 ? "Great" : "Good"}</span>
@@ -491,15 +491,16 @@ async function viewHistory(id) {
         displayResults(res.data.resume);
     } catch (err) {
         console.error('Get Resume Error:', err);
+    } finally {
+        setGlobalLoadingCursor(false);
     }
 }
 
 async function confirmDeleteResume(btn, id) {
-    console.log(id);
     btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Deleting...';
     btn.disabled = true;
     try {
-        await api.delete(`/api/resume/deleteResume/${'kkl'}`);
+        await api.delete(`/api/resume/deleteResume/${id}`);
         renderHistory();
         closeModal();
     } catch (error) {
@@ -509,29 +510,13 @@ async function confirmDeleteResume(btn, id) {
     }
 }
 
-function clearAllHistory() {
+async function clearAllHistory(btn) {
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Deleting...';
+    btn.disabled = true;
     try {
-        Swal.fire({
-            title: "Clear All History?",
-            text: "All your resume analysis history will be permanently deleted",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, delete it!"
-        }).then(async (result) => {
-            if (result.isConfirmed) {
-                const res = await api.delete('/api/resume/clearAllHistory');
-                Swal.fire({
-                    title: "History Cleared!",
-                    text: "Your resume history has been successfully deleted",
-                    icon: "success",
-                    showConfirmButton: false,
-                    timer: 2000
-                });
-                renderHistory();
-            }
-        });
+        await api.delete('/api/resume/clearAllHistory');
+        renderHistory();
+        closeModal();
     } catch (error) {
         console.error('Clear all history error:', error);
     }
@@ -556,6 +541,31 @@ const showDeleteHistoryModal = (resumeId) => {
         </button>
     `;
     const modal = createModal('Confirm Delete', content, actions);
+    showModal(modal);
+}
+
+const showClearAllHistoryModal = () => {
+    const content = `
+        <div class="text-center py-4">
+            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full mb-4 bg-red-500">
+                <i class="fas fa-trash text-white text-xl"></i>
+            </div>
+            <p class="text-base text-gray-900 font-semibold">Clear All History</p>
+            <p class="text-sm text-gray-500 mt-2">
+                All your resume analysis history will be permanently deleted.
+                This action cannot be undone.
+            </p>
+        </div>
+    `;
+    const actions = `
+        <button onclick="closeModal()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
+            Cancel
+        </button>
+        <button onclick="clearAllHistory(this)" class="px-4 py-2 text-white rounded-lg font-medium transition-colors bg-red-600 hover:bg-red-700">
+            Yes, clear history
+        </button>
+    `;
+    const modal = createModal('Clear All History?', content, actions);
     showModal(modal);
 }
 
@@ -625,8 +635,13 @@ function closeModal() {
     document.getElementById('modalContainer').innerHTML = '';
 }
 
+function setGlobalLoadingCursor(isLoading) {
+    document.body.style.cursor = isLoading ? "wait" : "default";
+}
+
 // Make closeModal globally accessible
 window.closeModal = closeModal;
+window.setGlobalLoadingCursor = setGlobalLoadingCursor;
 
 const logoutUser = async (btn) => {
     btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Logging out...';

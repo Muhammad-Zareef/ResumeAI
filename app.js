@@ -121,17 +121,10 @@ async function handleLogin(e) {
         const res = await api.post('/api/login', { loginEmail, loginPassword });
         if (res.data.status === 200) {
             if (res.data.user.role === "admin") {
-                setTimeout(() => { window.location.href = "./dashboard/index.html"; }, 1000);
+                window.location.href = "./dashboard/index.html";
             } else {
-                setTimeout(() => { window.location.href = "./home/index.html"; }, 1000);
+                window.location.href = "./home/index.html";
             }
-            Swal.fire({
-                title: "Login Successful!",
-                text: "Welcome back! You have successfully logged in",
-                icon: "success",
-                showConfirmButton: false,
-                timer: 1500
-            });
         } else {
             Swal.fire({
                 title: "Invalid credentials",
@@ -143,9 +136,15 @@ async function handleLogin(e) {
         }
     } catch (error) {
         console.error('Login error:', error);
-    } finally {
         btn.innerHTML = 'Login';
         btn.disabled = false;
+        Swal.fire({
+            title: "500",
+            text: "Internal Server Error",
+            icon: "error",
+            showConfirmButton: false,
+            timer: 2000
+        });
     }
 }
 
