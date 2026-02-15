@@ -578,7 +578,7 @@ function showModal(modal) {
 
 function createModal(title, content, actions = '') {
     const modal = document.createElement('div');
-    modal.className = 'fixed inset-0 z-50 overflow-y-auto modal-backdrop';
+    modal.className = 'fixed inset-0 z-65 overflow-y-auto modal-backdrop';
     modal.innerHTML = `
         <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
             <div class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" onclick="closeModal()"></div>
