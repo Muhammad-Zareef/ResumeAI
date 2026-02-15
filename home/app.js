@@ -174,7 +174,6 @@ function displayResults(data) {
     document.getElementById("analysisTime").textContent = `Analyzed on ${new Date(data.createdAt).toLocaleDateString()}`;
     document.getElementById("resultsSection").classList.remove("hidden-section");
     document.getElementById("resultsSection").classList.add("visible-section");
-    document.body.classList.remove("cursor-wait");
     setTimeout(() => document.getElementById("scrollView").scrollIntoView({ behavior: "smooth" }), 100);
 }
 
@@ -463,8 +462,8 @@ async function renderHistory() {
         const html = res.data.length === 0
                 ? '<div class="text-center py-12" style="color: var(--secondary);"><i class="fas fa-inbox text-4xl mb-3 block opacity-30"></i><p class="text-sm">No analyses yet</p><p class="text-xs mt-1">Analyze your first resume to see it here</p></div>'
                 : res.data.map((item) => `
-                <div class="p-4 rounded-lg border cursor-pointer transition-colors" style="background-color: var(--light-bg); border-color: var(--border);">
-                    <div onclick="setGlobalLoadingCursor(true); viewHistory('${item._id}')" class="mb-2">
+                <div id="${item._id}" class="p-4 rounded-lg border cursor-pointer transition-colors" style="background-color: var(--light-bg); border-color: var(--border);">
+                    <div onclick="viewHistory('${item._id}')" class="mb-2">
                         <div class="flex items-center justify-between mb-2">
                             <span class="font-semibold text-sm" style="color: var(--dark-text);">Score: ${item.aiScore}/100</span>
                             <span class="text-xs font-semibold px-2 py-1 rounded text-white" style="background-color: ${item.aiScore >= 80 ? "var(--accent)" : "#fbc02d"};">${item.aiScore >= 80 ? "Great" : "Good"}</span>
@@ -485,6 +484,9 @@ async function renderHistory() {
 }
 
 async function viewHistory(id) {
+    const myDiv = document.getElementById(id);
+    myDiv.classList.remove("cursor-pointer");
+    myDiv.classList.add("cursor-wait");
     document.body.classList.add("cursor-wait");
     try {
         const res = await api.get(`/api/resume/${id}`);
@@ -494,7 +496,9 @@ async function viewHistory(id) {
     } catch (err) {
         console.error('Get Resume Error:', err);
     } finally {
-        setGlobalLoadingCursor(false);
+        document.body.classList.remove("cursor-wait");
+        myDiv.classList.remove("cursor-wait");
+        myDiv.classList.add("cursor-pointer");
     }
 }
 
@@ -637,13 +641,8 @@ function closeModal() {
     document.getElementById('modalContainer').innerHTML = '';
 }
 
-function setGlobalLoadingCursor(isLoading) {
-    document.body.style.cursor = isLoading ? "wait" : "default";
-}
-
 // Make closeModal globally accessible
 window.closeModal = closeModal;
-window.setGlobalLoadingCursor = setGlobalLoadingCursor;
 
 const logoutUser = async (btn) => {
     btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Logging out...';
