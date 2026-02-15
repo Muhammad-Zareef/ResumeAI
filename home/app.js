@@ -471,7 +471,7 @@ async function renderHistory() {
                         <p class="text-xs" style="color: var(--secondary);">${item.aiImprovedText.substring(0, 150) + "..."}</p>
                         <p class="text-xs mt-2" style="color: var(--secondary);">${new Date(item.createdAt).toLocaleDateString()}</p>
                     </div>
-                    <button onclick="deleteHistory('${item._id}')" class="w-full mt-3 py-2 text-xs text-red-600 hover:bg-red-50 rounded font-medium transition-colors">
+                    <button onclick="showDeleteHistoryModal('${item._id}')" class="w-full mt-3 py-2 text-xs text-red-600 hover:bg-red-50 rounded font-medium transition-colors">
                         <i class="fas fa-trash mr-1"></i>Delete
                     </button>
                 </div>
@@ -494,31 +494,18 @@ async function viewHistory(id) {
     }
 }
 
-function deleteHistory(id) {
+async function confirmDeleteResume(btn, id) {
+    console.log(id);
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Deleting...';
+    btn.disabled = true;
     try {
-        Swal.fire({
-            title: "Are you sure?",
-            text: "This Resume will be permanently deleted",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, delete it!"
-        }).then(async (result) => {
-            if (result.isConfirmed) {
-                await api.delete(`/api/resume/deleteResume/${id}`);
-                Swal.fire({
-                    title: "Deleted!",
-                    text: "The Resume has been successfully deleted",
-                    icon: "success",
-                    showConfirmButton: false,
-                    timer: 2000
-                });
-                renderHistory();
-            }
-        });
+        await api.delete(`/api/resume/deleteResume/${'kkl'}`);
+        renderHistory();
+        closeModal();
     } catch (error) {
         console.error('Delete history error:', error);
+        btn.innerHTML = "Delete";
+        btn.disabled = false;
     }
 }
 
@@ -548,6 +535,28 @@ function clearAllHistory() {
     } catch (error) {
         console.error('Clear all history error:', error);
     }
+}
+
+const showDeleteHistoryModal = (resumeId) => {
+    const content = `
+        <div class="text-center py-4">
+            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full mb-4 bg-red-500">
+                <i class="fas fa-trash text-white text-xl"></i>
+            </div>
+            <p class="text-base text-gray-900 font-semibold">Delete Resume</p>
+            <p class="text-sm text-gray-500 mt-2">Are you sure you want to delete this resume? This action cannot be undone.</p>
+        </div>
+    `;
+    const actions = `
+        <button onclick="closeModal()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
+            Cancel
+        </button>
+        <button onclick="confirmDeleteResume(this, '${resumeId}')" class="px-4 py-2 text-white rounded-lg font-medium transition-colors bg-red-600 hover:bg-red-700">
+            Delete
+        </button>
+    `;
+    const modal = createModal('Confirm Delete', content, actions);
+    showModal(modal);
 }
 
 function showFileName(input) {
@@ -604,7 +613,7 @@ const showLogoutModal = () => {
         <button onclick="closeModal()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
             Cancel
         </button>
-        <button onclick="logoutUser()" class="px-4 py-2 text-white rounded-lg font-medium transition-colors" style="background-color: var(--primary);">
+        <button onclick="logoutUser(this)" class="px-4 py-2 text-white rounded-lg font-medium transition-colors" style="background-color: var(--primary);">
             Logout
         </button>
     `;
@@ -619,18 +628,15 @@ function closeModal() {
 // Make closeModal globally accessible
 window.closeModal = closeModal;
 
-const logoutUser = async () => {
-    Swal.fire({
-        title: "Logged Out!",
-        text: "You have been successfully logged out",
-        icon: "success",
-        showConfirmButton: false,
-        timer: 1250
-    });
+const logoutUser = async (btn) => {
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Logging out...';
+    btn.disabled = true;
     try {
         await api.post("/api/logout");
         window.location.href = "/index.html";
     } catch (err) {
         console.error('Logout Error:', err);
+        btn.innerHTML = "Logout";
+        btn.disabled = false;
     }
 }
