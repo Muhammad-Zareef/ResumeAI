@@ -293,32 +293,41 @@ async function addJob(e) {
     }
 }
 
-async function deleteJob(id) {
+async function deleteJob(btn, id) {
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Deleting...';
+    btn.disabled = true;
     try {
-        Swal.fire({
-            title: "Are you sure?",
-            text: "This Job will be permanently deleted",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, delete it!"
-        }).then(async (result) => {
-            if (result.isConfirmed) {
-                await api.delete(`/api/jobs/${id}`);
-                Swal.fire({
-                    title: "Deleted!",
-                    text: "The Job has been successfully deleted",
-                    icon: "success",
-                    showConfirmButton: false,
-                    timer: 2000
-                });
-                renderJobs();
-            }
-        });
+        await api.delete(`/api/jobs/${id}`);
+        renderJobs();
     } catch (error) {
+        btn.innerHTML = "Delete Job";
+        btn.disabled = false;
         console.error('Delete job error:', error);
     }
+}
+
+const showDeleteJobModal = (id) => {
+    const content = `
+        <div class="text-center py-4">
+            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full mb-4 bg-red-500">
+                <i class="fas fa-trash text-white text-xl"></i>
+            </div>
+            <p class="text-base text-gray-900 font-semibold">Delete This Job?</p>
+            <p class="text-sm text-gray-500 mt-2">
+                This job will be permanently deleted and cannot be recovered.
+            </p>
+        </div>
+    `;
+    const actions = `
+        <button onclick="closeModal()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
+            Cancel
+        </button>
+        <button onclick="deleteJob(this, '${id}')" class="px-4 py-2 text-white rounded-lg font-medium transition-colors bg-red-600 hover:bg-red-700">
+            Delete Job
+        </button>
+    `;
+    const modal = createModal('Confirm Job Deletion', content, actions);
+    showModal(modal);
 }
 
 function filterJobs(status) {
@@ -373,7 +382,7 @@ function getJobCard(job) {
                         </div>
                         <div class="flex gap-2">
                             <button onclick="openEditModal('${job._id}')" class="transition-colors" style="color: var(--primary);" title="Edit"><i class="fas fa-edit"></i></button>
-                            <button onclick="deleteJob('${job._id}')" class="transition-colors" style="color: #c62828;" title="Delete"><i class="fas fa-trash"></i></button>
+                            <button onclick="showDeleteJobModal('${job._id}')" class="transition-colors" style="color: #c62828;" title="Delete"><i class="fas fa-trash"></i></button>
                         </div>
                     </div>
                 </div>
