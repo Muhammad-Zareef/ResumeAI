@@ -112,7 +112,7 @@ function validateEmail(email) {
 // Form Handlers
 async function handleLogin(e) {
     e.preventDefault();
-    let btn = document.getElementById("loginBtn");
+    let btn = e.submitte;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Logging...';
     btn.disabled = true;
     let loginEmail = document.getElementById("loginEmail").value;
@@ -136,8 +136,6 @@ async function handleLogin(e) {
         }
     } catch (error) {
         console.error('Login error:', error);
-        btn.innerHTML = 'Login';
-        btn.disabled = false;
         Swal.fire({
             title: "500",
             text: "Internal Server Error",
@@ -145,6 +143,9 @@ async function handleLogin(e) {
             showConfirmButton: false,
             timer: 2000
         });
+    } finally {
+        btn.innerHTML = 'Login';
+        btn.disabled = false;
     }
 }
 
