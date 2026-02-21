@@ -342,7 +342,7 @@ function filterJobs(status) {
 
 async function renderJobs(renderOptions = true, status = 'all') {
     try {
-        document.getElementById("jobsList").innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>';
+        document.getElementById("jobsList").innerHTML = '<div class="p-12 text-center"><i class="fas fa-spinner fa-spin text-4xl"></i></div>';
         const res = await api.get(status === "all" ? "/api/jobs" : `/api/jobs/filter?status=${status}`);
         if (renderOptions) await renderJobOptions(res.data);
         const filtered = res.data;
