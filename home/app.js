@@ -342,6 +342,7 @@ function filterJobs(status) {
 
 async function renderJobs(renderOptions = true, status = 'all') {
     try {
+        document.getElementById("jobsList").innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>';
         const res = await api.get(status === "all" ? "/api/jobs" : `/api/jobs/filter?status=${status}`);
         if (renderOptions) await renderJobOptions(res.data);
         const filtered = res.data;
@@ -349,6 +350,8 @@ async function renderJobs(renderOptions = true, status = 'all') {
         document.getElementById("jobsList").innerHTML = html;
         document.getElementById("jobCount").textContent = res.data.length;
         document.getElementById("jobCount").style.display = res.data.length > 0 ? "inline-block" : "none";
+        document.getElementById("jobCountMobile").textContent = res.data.length;
+        document.getElementById("jobCountMobile").style.display = res.data.length > 0 ? "inline-block" : "none";
     } catch (error) {
         console.error('Get jobs error:', error);
     }
