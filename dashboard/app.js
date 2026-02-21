@@ -961,6 +961,9 @@ const showLogoutModal = () => {
 };
 
 const adminLogout = async () => {
+    const btn = document.getElementById("logout-button");
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Logging out...';
+    btn.disabled = true;
     try {
         await api.post('/admin/logout');
         closeModal();
@@ -968,6 +971,8 @@ const adminLogout = async () => {
         window.location.href = '/index.html';
     } catch (err) {
         console.error('Logout error:', err);
+        btn.innerHTML = "Logout";
+        btn.disabled = false;
     }
 };
 
