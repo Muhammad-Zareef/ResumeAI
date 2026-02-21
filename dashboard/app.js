@@ -952,7 +952,7 @@ const showLogoutModal = () => {
         <button onclick="closeModal()" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
             Cancel
         </button>
-        <button onclick="adminLogout()" class="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg font-medium transition-colors">
+        <button onclick="adminLogout(this)" class="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg font-medium transition-colors">
             Logout
         </button>
     `;
@@ -960,11 +960,10 @@ const showLogoutModal = () => {
     showModal(modal);
 };
 
-const adminLogout = async () => {
-    const btn = document.getElementById("logout-button");
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Logging out...';
-    btn.disabled = true;
+const adminLogout = async (btn) => {
     try {
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Logging out...';
+        btn.disabled = true;
         await api.post('/admin/logout');
         closeModal();
         // Redirect to login page
