@@ -298,11 +298,13 @@ async function deleteJob(btn, id) {
     btn.disabled = true;
     try {
         await api.delete(`/api/jobs/${id}`);
-        renderJobs();
+        await renderJobs();
+        closeModal();
     } catch (error) {
+        console.error('Delete job error:', error);
+    } finally {
         btn.innerHTML = "Delete Job";
         btn.disabled = false;
-        console.error('Delete job error:', error);
     }
 }
 
@@ -384,7 +386,7 @@ function getJobCard(job) {
                             ${job.link ? `<a href="${job.link}" target="_blank" rel="noopener noreferrer" style="color: var(--primary);" class="hover:underline"><i class="fas fa-external-link-alt mr-1"></i>View Posting</a>` : ""}
                         </div>
                         <div class="flex gap-2">
-                            <button onclick="openEditModal('${job._id}')" class="transition-colors" style="color: var(--primary);" title="Edit"><i class="fas fa-edit"></i></button>
+                            <button onclick="openEditModal(this, '${job._id}')" class="transition-colors" style="color: var(--primary);" title="Edit"><i class="fas fa-edit"></i></button>
                             <button onclick="showDeleteJobModal('${job._id}')" class="transition-colors" style="color: #c62828;" title="Delete"><i class="fas fa-trash"></i></button>
                         </div>
                     </div>
@@ -392,7 +394,9 @@ function getJobCard(job) {
             `;
 }
 
-async function openEditModal(jobId) {
+async function openEditModal(btn, jobId) {
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    btn.disabled = true;
     try {
         const res = await api.get(`/api/jobs/${jobId}`);
         const job = res.data.job;
@@ -406,6 +410,9 @@ async function openEditModal(jobId) {
         document.getElementById("editJobModal").classList.remove("hidden");
     } catch (err) {
         console.error('Edit Job Error:', err);
+    } finally {
+        btn.innerHTML = '<i class="fas fa-edit"></i>';
+        btn.disabled = false;
     }
 }
 

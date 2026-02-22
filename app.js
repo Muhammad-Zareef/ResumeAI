@@ -184,7 +184,7 @@ async function handleSignup(e) {
     } catch (err) {
         Swal.fire({
             title: "Oops!",
-            text: err.response.data.message,
+            text: err.response.data.message ? err.response.data.message :"Internal Server Error",
             icon: "error",
             showConfirmButton: false,
             timer: 2500
