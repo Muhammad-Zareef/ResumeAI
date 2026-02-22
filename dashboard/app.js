@@ -306,7 +306,7 @@ function renderResumeTable(resumes) {
                 ${new Date(resume.createdAt).toLocaleDateString()}
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm">
-                <button onclick="viewResumeDetails('${resume._id}')" 
+                <button onclick="viewResumeDetails(this, '${resume._id}')" 
                 class="text-primary-600 dark:text-primary-400 hover:text-primary-900 dark:hover:text-primary-300 mr-3" title="View Details">
                     <i class="fas fa-eye"></i>
                 </button>
@@ -319,7 +319,9 @@ function renderResumeTable(resumes) {
     });
 }
 
-async function viewResumeDetails(id) {
+async function viewResumeDetails(btn, id) {
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    btn.disabled = true;
     try {
         const res = await api.get(`/admin/resumes/${id}`);
         const resume = res.data.resume;
@@ -382,6 +384,9 @@ async function viewResumeDetails(id) {
         showModal(modal);
     } catch (err) {
         console.error('View Resume Details Error:', err)
+    }  finally {
+        btn.innerHTML = '<i class="fas fa-eye"></i>';
+        btn.disabled = false;
     }
 }
 

@@ -469,6 +469,7 @@ function toggleHistory() {
 
 async function renderHistory() {
     try {
+        document.getElementById("historyContent").innerHTML = '<div class="p-12 text-center"><i class="fas fa-spinner fa-spin text-3xl"></i></div>';
         const res = await api.get('/api/resume/');
         document.getElementById("historyTotal").textContent = res.data.length;
         const html = res.data.length === 0
