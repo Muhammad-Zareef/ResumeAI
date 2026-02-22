@@ -383,7 +383,7 @@ async function viewResumeDetails(btn, id) {
         const modal = createModal('Resume Analysis Details', content, actions);
         showModal(modal);
     } catch (err) {
-        console.error('View Resume Details Error:', err)
+        console.error('View Resume Details Error:', err);
     }  finally {
         btn.innerHTML = '<i class="fas fa-eye"></i>';
         btn.disabled = false;
@@ -405,7 +405,7 @@ function deleteResume(id, userName) {
         <button onclick="closeModal()" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
             Cancel
         </button>
-        <button onclick="confirmDeleteResume('${id}')" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors">
+        <button onclick="confirmDeleteResume(this, '${id}')" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors">
             Delete
         </button>
     `;
@@ -413,7 +413,9 @@ function deleteResume(id, userName) {
     showModal(modal);
 }
 
-async function confirmDeleteResume(id) {
+async function confirmDeleteResume(btn, id) {
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Deleting...';
+    btn.disabled = true;
     try {
         await api.delete(`/admin/resumes/${id}`);
         closeModal();
@@ -422,6 +424,9 @@ async function confirmDeleteResume(id) {
         await loadRecentActivity();
     } catch (err) {
         console.error('Delete resume error:', err);
+    } finally {
+        btn.innerHTML = "Delete";
+        btn.disabled = false;
     }
 }
 
@@ -503,11 +508,11 @@ function renderJobTable(jobs = []) {
                 ${new Date(job.appliedDate).toLocaleDateString()}
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm">
-                <button onclick="viewJobDetails('${job._id}')" 
+                <button onclick="viewJobDetails(this, '${job._id}')" 
                 class="text-primary-600 dark:text-primary-400 hover:text-primary-900 dark:hover:text-primary-300 mr-3" title="View">
                     <i class="fas fa-eye"></i>
                 </button>
-                <button onclick="editJob('${job._id}')" class="text-green-600 dark:text-green-400 hover:text-green-900 dark:hover:text-green-300 mr-3" title="Edit">
+                <button onclick="editJob(this, '${job._id}')" class="text-green-600 dark:text-green-400 hover:text-green-900 dark:hover:text-green-300 mr-3" title="Edit">
                     <i class="fas fa-edit"></i>
                 </button>
                 <button onclick="deleteJob('${job._id}', '${job.company}', '${job.position}')" class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300" title="Delete">
@@ -519,7 +524,9 @@ function renderJobTable(jobs = []) {
     });
 }
 
-async function viewJobDetails(jobId) {
+async function viewJobDetails(btn, jobId) {
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    btn.disabled = true;
     try {
         const res = await api.get(`/admin/jobs/${jobId}`);
         const job = res.data.job;
@@ -570,6 +577,9 @@ async function viewJobDetails(jobId) {
         showModal(modal);
     } catch (err) {
         console.error('Get Job Error:', err);
+    } finally {
+        btn.innerHTML = '<i class="fas fa-eye"></i>';
+        btn.disabled = false;
     }
 }
 
@@ -621,7 +631,7 @@ function createJobForm(job = null) {
         <button onclick="closeModal()" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
             Cancel
         </button>
-        <button onclick="saveJob('${isEdit ? job._id : 'null'}')" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors">
+        <button onclick="saveJob(this, '${isEdit ? job._id : 'null'}')" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors">
             ${isEdit ? 'Update' : 'Create'}
         </button>
     `;
@@ -629,7 +639,14 @@ function createJobForm(job = null) {
     showModal(modal);
 }
 
-async function saveJob(id = null) {
+async function saveJob(btn, id = null) {
+    if (id !== 'null') {
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Updating...';
+        btn.disabled = true;
+    } else {
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Creating...';
+        btn.disabled = true;
+    }
     const company = document.getElementById('jobCompany').value;
     const position = document.getElementById('jobPosition').value;
     const description = document.getElementById('jobDescription').value;
@@ -637,8 +654,15 @@ async function saveJob(id = null) {
     const appliedDate = document.getElementById('jobAppliedDate').value;
     const link = document.getElementById('jobLink').value;
     const notes = document.getElementById('jobNotes').value;
-    if (!company || !position || !description || !status || !appliedDate || !jobLink) {
+    if (!company || !position || !description || !status || !appliedDate || !link) {
         alert('Please fill in all required fields');
+        if (id !== 'null') {
+            btn.innerHTML = "Update";
+            btn.disabled = false;
+        } else {
+            btn.innerHTML = "Create";
+            btn.disabled = false;
+        }
         return;
     }
     if (id !== 'null') {
@@ -650,6 +674,9 @@ async function saveJob(id = null) {
             await loadRecentActivity();
         } catch (error) {
             console.error('Update job error: ', error);
+        } finally {
+            btn.innerHTML = "Update";
+            btn.disabled = false;
         }
     } else {
         // Create new job
@@ -662,16 +689,24 @@ async function saveJob(id = null) {
             await loadRecentActivity();
         } catch (err) {
             console.error('Create job error:', err);
+        } finally {
+            btn.innerHTML = "Create";
+            btn.disabled = false;
         }
     }
 }
 
-async function editJob(id) {
+async function editJob(btn, id) {
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    btn.disabled = true;
     try {
         const res = await api.get(`/admin/jobs/${id}`);
         createJobForm(res.data.job);
     } catch (err) {
         console.error('Edit job error:', err);
+    } finally {
+        btn.innerHTML = '<i class="fas fa-edit"></i>';
+        btn.disabled = false;
     }
 }
 
@@ -690,7 +725,7 @@ function deleteJob(id, company, position) {
         <button onclick="closeModal()" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
             Cancel
         </button>
-        <button onclick="confirmDeleteJob('${id}')" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors">
+        <button onclick="confirmDeleteJob(this, '${id}')" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors">
             Delete
         </button>
     `;
@@ -698,15 +733,20 @@ function deleteJob(id, company, position) {
     showModal(modal);
 }
 
-async function confirmDeleteJob(id) {
+async function confirmDeleteJob(btn, id) {
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Deleting...';
+    btn.disabled = true;
     try {
-        const res = await api.delete(`/admin/jobs/${id}`);
+        await api.delete(`/admin/jobs/${id}`);
         closeModal();
         await getJobs();
         await loadDashboardStats();
         await loadRecentActivity();
     } catch (err) {
         console.error('Delete job error:', err);
+    } finally {
+        btn.innerHTML = "Delete";
+        btn.disabled = false;
     }
 }
 
@@ -731,6 +771,14 @@ async function initJobManagement() {
         console.error("Get jobs error:", err);
     }
     const applyFilters = async () => {
+        const tbody = document.getElementById('jobTableBody');
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="5" class="text-center py-4">
+                <i class="fas fa-spinner fa-spin mr-2"></i>Filtering jobs...
+                </td>
+            </tr>
+        `;
         // this would filter the data and re-render
         const params = new URLSearchParams();
         if (searchInput.value.trim()) {
@@ -743,8 +791,10 @@ async function initJobManagement() {
             params.append('company', companyFilter.value.trim());
         }
         try {
-            const res = await api.get(`/admin/jobs/filter?${params.toString()}`);
-            if (res.data.success) renderJobTable(res.data.jobs);
+            setTimeout(async () => {
+                const res = await api.get(`/admin/jobs/filter?${params.toString()}`);
+                if (res.data.success) renderJobTable(res.data.jobs);
+            }, 500);
         } catch (err) {
             console.error('Job Filter Error:', err);
         }
@@ -788,10 +838,10 @@ function renderUserTable(users) {
                 ${new Date(user.createdAt).toLocaleDateString()}
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm">
-                <button onclick="editUser('${user._id}')" class="text-green-600 dark:text-green-400 hover:text-green-900 dark:hover:text-green-300 mr-3" title="Edit">
+                <button onclick="editUser(this, '${user._id}')" class="text-green-600 dark:text-green-400 hover:text-green-900 dark:hover:text-green-300 mr-3" title="Edit">
                     <i class="fas fa-edit"></i>
                 </button>
-                <button onclick="deleteUser('${user._id}')" class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300" title="Delete">
+                <button onclick="deleteUser(this, '${user._id}')" class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300" title="Delete">
                     <i class="fas fa-trash"></i>
                 </button>
             </td>
@@ -838,7 +888,7 @@ function createUserForm(user = null) {
         <button onclick="closeModal()" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
             Cancel
         </button>
-        <button onclick="saveUser('${isEdit ? user._id : 'null'}')" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors">
+        <button onclick="saveUser(this, '${isEdit ? user._id : 'null'}')" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors">
             ${isEdit ? 'Update' : 'Create'}
         </button>
     `;
@@ -846,12 +896,26 @@ function createUserForm(user = null) {
     showModal(modal);
 }
 
-async function saveUser(id) {
+async function saveUser(btn, id) {
+    if (id !== 'null') {
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Updating...';
+        btn.disabled = true;
+    } else {
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Creating...';
+        btn.disabled = true;
+    }
     const name = document.getElementById('userName').value;
     const email = document.getElementById('userEmail').value;
     const role = document.getElementById('userRole').value;
     if (!name || !email || !role) {
         alert('Please fill in all required fields');
+        if (id !== 'null') {
+            btn.innerHTML = "Update";
+            btn.disabled = false;
+        } else {
+            btn.innerHTML = "Create";
+            btn.disabled = false;
+        }
         return;
     }
     if (id !== 'null') {
@@ -863,6 +927,9 @@ async function saveUser(id) {
             await loadRecentActivity();
         } catch (error) {
             console.error('Update user error:', error);
+        } finally {
+            btn.innerHTML = "Update";
+            btn.disabled = false;
         }
     } else {
         // Create new user
@@ -877,20 +944,30 @@ async function saveUser(id) {
         } catch (err) {
             alert(err.response.data.message);
             console.error('Create user error:', err);
+        } finally {
+            btn.innerHTML = "Create";
+            btn.disabled = false;
         }
     }
 }
 
-async function editUser(id) {
+async function editUser(btn, id) {
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    btn.disabled = true;
     try {
         const res = await api.get(`/admin/users/${id}`);
         createUserForm(res.data.user);
     } catch (err) {
         console.error('Edit User Error:', err);
+    } finally {
+        btn.innerHTML = '<i class="fas fa-edit"></i>';
+        btn.disabled = false;
     }
 }
 
-async function deleteUser(id) {
+async function deleteUser(btn, id) {
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    btn.disabled = true;
     try {
         const res = await api.get(`/admin/users/${id}`);
         const user = res.data.user;
@@ -908,7 +985,7 @@ async function deleteUser(id) {
             <button onclick="closeModal()" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
                 Cancel
             </button>
-            <button onclick="confirmDeleteUser('${id}')" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors">
+            <button onclick="confirmDeleteUser(this, '${id}')" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors">
                 Delete
             </button>
         `;
@@ -916,10 +993,15 @@ async function deleteUser(id) {
         showModal(modal);
     } catch (err) {
         console.error('Delete user error:', err);
+    } finally {
+        btn.innerHTML = '<i class="fas fa-trash"></i>';
+        btn.disabled = false;
     }
 }
 
-async function confirmDeleteUser(id) {
+async function confirmDeleteUser(btn, id) {
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Deleting...';
+    btn.disabled = true;
     try {
         await api.delete(`/admin/users/${id}`);
         closeModal();
@@ -928,6 +1010,9 @@ async function confirmDeleteUser(id) {
         await loadRecentActivity();
     } catch (err) {
         console.error('Delete user error:', err);
+    } finally {
+        btn.innerHTML = "Delete";
+        btn.disabled = false;
     }
 }
 

@@ -13,13 +13,13 @@ let state = {
 // Initialize
 document.addEventListener("DOMContentLoaded", async function () {
     await checkAuth();
+    await renderHistory();
     const mq = window.matchMedia("(max-width: 768px)");
     if (mq.matches) {
         switchTab(state.currentTab);
     } else {
         switchTab(state.currentTab);
     }
-    await renderHistory();
     await renderJobs();
     mq.addEventListener("change", (e) => {
         if (e.matches) {
