@@ -333,6 +333,7 @@ const showDeleteJobModal = (id) => {
 }
 
 function filterJobs(status) {
+    if (state.currentFilter == status) return;
     state.currentFilter = status;
     document.querySelectorAll(".filterBtn").forEach((btn) => {
         btn.style.backgroundColor = btn.dataset.filter === status ? "var(--primary)" : "";
