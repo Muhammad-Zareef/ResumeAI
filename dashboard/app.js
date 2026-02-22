@@ -447,6 +447,14 @@ async function initResumeFilters() {
         console.error('Resume filters error:', err);
     }
     const applyFilters = async () => {
+        const tbody = document.getElementById('resumeTableBody');
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="5" class="text-center py-4 text-gray-900 dark:text-white">
+                    <i class="fas fa-spinner fa-spin mr-2"></i>Filtering resumes...
+                </td>
+            </tr>
+        `;
         // this would filter the data and re-render
         const search = searchInput.value.trim();
         const ats = atsFilter.value;
@@ -774,8 +782,8 @@ async function initJobManagement() {
         const tbody = document.getElementById('jobTableBody');
         tbody.innerHTML = `
             <tr>
-                <td colspan="5" class="text-center py-4">
-                <i class="fas fa-spinner fa-spin mr-2"></i>Filtering jobs...
+                <td colspan="5" class="text-center py-4 text-gray-900 dark:text-white">
+                    <i class="fas fa-spinner fa-spin mr-2"></i>Filtering jobs...
                 </td>
             </tr>
         `;
