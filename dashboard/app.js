@@ -772,14 +772,10 @@ async function initJobManagement() {
     const searchInput = document.getElementById('jobSearch');
     const statusFilter = document.getElementById('jobStatusFilter');
     const companyFilter = document.getElementById('jobCompanyFilter');
-    try {
-        const res = await api.get('/admin/jobs');
-        renderJobTable(res.data);
-    } catch (err) {
-        console.error("Get jobs error:", err);
-    }
-    const applyFilters = async () => {
-        const tbody = document.getElementById('jobTableBody');
+    const tbody = document.getElementById('jobTableBody');
+    let debounceTimer;
+    let currentRequest = 0;
+    const showLoading = () => {
         tbody.innerHTML = `
             <tr>
                 <td colspan="5" class="text-center py-4 text-gray-900 dark:text-white">
@@ -787,7 +783,15 @@ async function initJobManagement() {
                 </td>
             </tr>
         `;
-        // this would filter the data and re-render
+    }
+    try {
+        const res = await api.get('/admin/jobs');
+        renderJobTable(res.data);
+    } catch (err) {
+        console.error("Get jobs error:", err);
+    }
+    const fetchFilteredJobs = async () => {
+        const requestId = ++currentRequest;
         const params = new URLSearchParams();
         if (searchInput.value.trim()) {
             params.append('search', searchInput.value.trim());
@@ -799,16 +803,21 @@ async function initJobManagement() {
             params.append('company', companyFilter.value.trim());
         }
         try {
-            setTimeout(async () => {
-                const res = await api.get(`/admin/jobs/filter?${params.toString()}`);
-                if (res.data.success) renderJobTable(res.data.jobs);
-            }, 500);
+            showLoading();
+            const res = await api.get(`/admin/jobs/filter?${params.toString()}`);
+            // Ignore old responses
+            if (requestId !== currentRequest) return;
+            if (res.data.success) renderJobTable(res.data.jobs);
         } catch (err) {
             console.error('Job Filter Error:', err);
         }
+    }
+    const applyFilters = () => {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(fetchFilteredJobs, 400);
     };
     searchInput.addEventListener('input', applyFilters);
-    statusFilter.addEventListener('change', applyFilters);
+    statusFilter.addEventListener('change', fetchFilteredJobs); // no debounce needed
     companyFilter.addEventListener('input', applyFilters);
 }
 

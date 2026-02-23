@@ -1,4 +1,4 @@
-# 🤖 ResumeAI – AI-Powered Resume Analyzer & Job Tracker
+# ResumeAI – AI-Powered Resume Analyzer & Job Tracker
 
 ResumeAI is a **full-stack web application** that analyzes PDF resumes against specific job descriptions and generates **AI-powered feedback** to improve ATS compatibility and interview success rates.
 
