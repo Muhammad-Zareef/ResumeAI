@@ -440,13 +440,16 @@ async function initResumeFilters() {
     const atsFilter = document.getElementById('atsFilter');
     const aiFilter = document.getElementById('aiFilter');
     const dateFilter = document.getElementById('dateFilter');
+    let debounceTimer;
+    let currentRequest = 0;
     try {
         const res = await api.get('/admin/resumes');
         renderResumeTable(res.data);
     } catch (err) {
         console.error('Resume filters error:', err);
     }
-    const applyFilters = async () => {
+    const fetchFilteredResumes = async () => {
+        const requestId = ++currentRequest;
         const tbody = document.getElementById('resumeTableBody');
         tbody.innerHTML = `
             <tr>
@@ -463,15 +466,21 @@ async function initResumeFilters() {
         try {
             const query = new URLSearchParams({ search, ats, ai, date }).toString();
             const res = await api.get(`/admin/resumes/filter?${query}`);
+            // Ignore old responses
+            if (requestId !== currentRequest) return;
             renderResumeTable(res.data.resumes); // pass backend data
         } catch (error) {
             console.error('Failed to fetch resumes:', error);
         }
     };
+    const applyFilters = () => {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(fetchFilteredResumes, 400);
+    };
     searchInput.addEventListener('input', applyFilters);
-    atsFilter.addEventListener('change', applyFilters);
-    aiFilter.addEventListener('change', applyFilters);
-    dateFilter.addEventListener('change', applyFilters);
+    atsFilter.addEventListener('change', fetchFilteredResumes);
+    aiFilter.addEventListener('change', fetchFilteredResumes);
+    dateFilter.addEventListener('change', fetchFilteredResumes);
 }
 
 // ============================================
