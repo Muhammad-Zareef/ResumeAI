@@ -179,12 +179,19 @@ async function handleSignup(e) {
                 timer: 1500
             });
         } else {
+            Swal.fire({
+                title: "Oops!",
+                text: "Something went wrong. Please try again.",
+                icon: "error",
+                showConfirmButton: false,
+                timer: 2500
+            });
             console.error('Signup error', res.data.message);
         }
     } catch (err) {
         Swal.fire({
             title: "Oops!",
-            text: err.response.data.message ? err.response.data.message :"Internal Server Error",
+            text: err.response.data.message ? err.response.data.message : "Internal Server Error. Please try again.",
             icon: "error",
             showConfirmButton: false,
             timer: 2500
