@@ -48,7 +48,6 @@ async function checkAuth() {
     try {
         const res = await api.get("/api/resume/auth");
     } catch (err) {
-        window.location.href = "/index.html";
         console.error('Authorization Error:', err);
     }
 }

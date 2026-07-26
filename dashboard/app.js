@@ -27,7 +27,6 @@ async function checkUserRole() {
         const res = await api.get('/admin/dashboard');
         document.getElementById('admin-name').textContent = res.data.admin.name;
     } catch (err) {
-        window.location.href = '/index.html';
         console.error('Access denied:', err);
     }
 }
