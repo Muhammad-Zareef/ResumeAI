@@ -4,6 +4,20 @@ const api = axios.create({
     withCredentials: true,
 });
 
+api.interceptors.response.use(
+    (response) => {
+        return response;
+    },
+    (error) => {
+        if (error.response?.status === 401) {
+            console.log(error.response.data.message);
+            // Redirect to login page
+            window.location.replace("/index.html");
+        }
+        return Promise.reject(error);
+    }
+);
+
 // ============================================
 // MOCK DATA
 // ============================================
@@ -383,7 +397,7 @@ async function viewResumeDetails(btn, id) {
         const modal = createModal('Resume Analysis Details', content, actions);
         showModal(modal);
     } catch (err) {
-        console.error(err.response?.data || 'View Resume Details Error: ' + err.message);
+        console.error('View Resume Details Error:', err);
     }  finally {
         btn.innerHTML = '<i class="fas fa-eye"></i>';
         btn.disabled = false;
