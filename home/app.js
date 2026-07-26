@@ -684,7 +684,7 @@ const logoutUser = async (btn) => {
     btn.disabled = true;
     try {
         await api.post("/api/logout");
-        window.location.href = "/index.html";
+        window.location.replace("/index.html");
     } catch (err) {
         console.error('Logout Error:', err);
         btn.innerHTML = "Logout";

@@ -1097,7 +1097,7 @@ const adminLogout = async (btn) => {
         await api.post('/admin/logout');
         closeModal();
         // Redirect to login page
-        window.location.href = '/index.html';
+        window.location.replace("/index.html");
     } catch (err) {
         console.error('Logout error:', err);
         btn.innerHTML = "Logout";
