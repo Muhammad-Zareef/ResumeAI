@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
 async function checkAuth() {
     try {
-        await api.get("/api/resume/auth");
+        const res = await api.get("/api/resume/auth");
     } catch (err) {
         window.location.href = "/index.html";
         console.error('Authorization Error:', err);

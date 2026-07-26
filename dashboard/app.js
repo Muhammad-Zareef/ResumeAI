@@ -383,7 +383,7 @@ async function viewResumeDetails(btn, id) {
         const modal = createModal('Resume Analysis Details', content, actions);
         showModal(modal);
     } catch (err) {
-        console.error('View Resume Details Error:', err);
+        console.error(err.response?.data || 'View Resume Details Error: ' + err.message);
     }  finally {
         btn.innerHTML = '<i class="fas fa-eye"></i>';
         btn.disabled = false;
