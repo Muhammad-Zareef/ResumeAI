@@ -50,6 +50,14 @@ const getJobs = async () => {
 };
 
 const getUsers = async () => {
+    const tbody = document.getElementById('userTableBody');
+    tbody.innerHTML = `
+        <tr>
+            <td colspan="5" class="text-center py-4 text-gray-900 dark:text-white">
+                <i class="fas fa-spinner fa-spin mr-2"></i>Loading...
+            </td>
+        </tr>
+    `;
     try {
         const res = await api.get('/admin/users');
         renderUserTable(res.data);
@@ -191,6 +199,7 @@ function initNavigation() {
         link.addEventListener('click', async (e) => {
             e.preventDefault();
             const targetPage = link.dataset.page;
+            console.log(targetPage);
             // Update active nav link
             navLinks.forEach((l) => {
                 l.classList.remove('bg-primary-600', 'dark:bg-primary-700', 'text-white');
@@ -213,6 +222,7 @@ function initNavigation() {
             document.getElementById(targetPage + 'Page').classList.remove('hidden');
             // Update page title
             pageTitle.textContent = pageTitles[targetPage];
+            localStorage.setItem('activeAdminTab', targetPage);
             // Close sidebar on mobile
             if (window.innerWidth < 1024) {
                 document.getElementById('sidebar').classList.add('-translate-x-full');
